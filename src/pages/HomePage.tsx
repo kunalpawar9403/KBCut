@@ -127,7 +127,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       </section>
 
       {/* 2. How It Works (3 Simple Steps) Section */}
-      <section className="w-full max-w-4xl mx-auto px-2">
+      <section id="how-it-works" className="w-full max-w-4xl mx-auto px-2 scroll-mt-24">
         <div className="text-center mb-8">
           <span className="text-xs font-extrabold uppercase tracking-wider text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/80 px-3 py-1 rounded-full border border-brand-200 dark:border-brand-800">
             How It Works
@@ -183,7 +183,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       </section>
 
       {/* 3. Supported Exam Portals Showcase */}
-      <section className="w-full max-w-4xl mx-auto px-2">
+      <section id="supported-exams" className="w-full max-w-4xl mx-auto px-2 scroll-mt-24">
         <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-brand-50/70 via-white to-blue-50/70 dark:from-slate-900 dark:via-slate-900 dark:to-brand-950/30 border border-brand-200/70 dark:border-brand-800/70 shadow-soft">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2">
             <div>

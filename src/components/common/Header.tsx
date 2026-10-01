@@ -1,58 +1,130 @@
 import React from 'react';
 import { useI18n, Language } from '../../i18n';
-import { Sun, Moon, ShieldCheck, Sparkles } from 'lucide-react';
+import { Sun, Moon, ShieldCheck, Sparkles, Wrench, Clock, FileText, ChevronDown, UploadCloud } from 'lucide-react';
 
 interface HeaderProps {
   theme: 'light' | 'dark';
+  activeTab: 'home' | 'tools' | 'history' | 'settings';
   onToggleTheme: () => void;
-  onNavigateHome?: () => void;
+  onNavigateTab: (tab: 'home' | 'tools' | 'history' | 'settings') => void;
+  onNavigateHome: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme, onNavigateHome }) => {
+export const Header: React.FC<HeaderProps> = ({
+  theme,
+  activeTab,
+  onToggleTheme,
+  onNavigateTab,
+  onNavigateHome,
+}) => {
   const { lang, setLang, t } = useI18n();
 
   const handleLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setLang(e.target.value as Language);
   };
 
+  const scrollToSection = (id: string) => {
+    if (activeTab !== 'home') {
+      onNavigateTab('home');
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <header className="sticky top-0 z-30 w-full glass border-b border-slate-200/80 dark:border-slate-800/80 transition-all duration-300">
-      <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Brand with Logo */}
-        <button
-          onClick={onNavigateHome}
-          className="flex items-center space-x-3 text-left focus:outline-none group"
-        >
-          <div className="relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-brand-500 to-accent-500 rounded-2xl blur-sm opacity-40 group-hover:opacity-75 transition duration-300" />
-            <img
-              src="/logo.png"
-              alt="KBCut Logo"
-              className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md object-contain bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-700/70 transition-transform group-hover:scale-105"
-            />
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-600 dark:from-brand-400 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent font-sans">
-                KBCut
-              </span>
-              <span className="hidden xs:inline-flex items-center space-x-1 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-accent-50 text-accent-700 dark:bg-accent-950/80 dark:text-accent-400 border border-accent-200/60 dark:border-accent-800/60">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent-500 animate-pulse mr-1" />
-                Private
-              </span>
+    <header className="sticky top-0 z-40 w-full glass border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between">
+        {/* Left: Brand Identity */}
+        <div className="flex items-center space-x-6">
+          <button
+            onClick={onNavigateHome}
+            className="flex items-center space-x-3 text-left focus:outline-none group"
+          >
+            <div className="relative">
+              <div className="absolute -inset-1 bg-gradient-to-r from-brand-500 to-accent-500 rounded-2xl blur-sm opacity-30 group-hover:opacity-70 transition duration-300" />
+              <img
+                src="/logo.png"
+                alt="KBCut Logo"
+                className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md object-contain bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-700/70 p-0.5 transition-transform group-hover:scale-105"
+              />
             </div>
-            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 -mt-0.5 hidden sm:block">
-              {t('app.tagline')}
-            </p>
-          </div>
-        </button>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-600 dark:from-brand-400 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent font-sans">
+                  KBCut
+                </span>
+                <span className="hidden xs:inline-flex items-center space-x-1 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-accent-50 text-accent-700 dark:bg-accent-950/80 dark:text-accent-400 border border-accent-200/60 dark:border-accent-800/60">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-500 animate-pulse mr-1" />
+                  100% Private
+                </span>
+              </div>
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 -mt-0.5 hidden md:block">
+                Get under the limit
+              </p>
+            </div>
+          </button>
+
+          {/* Desktop Navigation Links (Integrated directly in navbar) */}
+          <nav className="hidden lg:flex items-center space-x-1 pl-4 border-l border-slate-200 dark:border-slate-800">
+            <button
+              onClick={() => onNavigateTab('home')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                activeTab === 'home'
+                  ? 'bg-brand-50 text-brand-600 dark:bg-brand-950/80 dark:text-brand-400'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              Compressor
+            </button>
+            <button
+              onClick={() => onNavigateTab('tools')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center space-x-1.5 ${
+                activeTab === 'tools'
+                  ? 'bg-brand-50 text-brand-600 dark:bg-brand-950/80 dark:text-brand-400'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <span>Exam Tools</span>
+              <span className="px-1.5 py-0.2 rounded-full bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 text-[9px] font-black">
+                6
+              </span>
+            </button>
+            <button
+              onClick={() => scrollToSection('how-it-works')}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors"
+            >
+              How It Works
+            </button>
+            <button
+              onClick={() => scrollToSection('supported-exams')}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors"
+            >
+              Supported Exams
+            </button>
+            <button
+              onClick={() => onNavigateTab('history')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                activeTab === 'history'
+                  ? 'bg-brand-50 text-brand-600 dark:bg-brand-950/80 dark:text-brand-400'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              Recent Files
+            </button>
+          </nav>
+        </div>
 
         {/* Right Controls */}
-        <div className="flex items-center space-x-2 sm:space-x-3">
-          {/* Privacy badge indicator on tablet/desktop */}
+        <div className="flex items-center space-x-2.5 sm:space-x-3">
+          {/* Privacy badge */}
           <div
             title={t('app.privacyBadge')}
-            className="hidden sm:flex items-center space-x-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-700/80 px-3 py-1.5 rounded-full shadow-sm"
+            className="hidden xl:flex items-center space-x-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-700/80 px-3 py-1.5 rounded-full shadow-sm"
           >
             <ShieldCheck className="w-3.5 h-3.5 text-accent-500 shrink-0" />
             <span>On-Device Only</span>
@@ -71,9 +143,7 @@ export const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme, onNavigate
               <option value="hi">हिंदी</option>
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
-              <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20">
-                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-              </svg>
+              <ChevronDown className="w-3.5 h-3.5" />
             </div>
           </div>
 
@@ -88,6 +158,18 @@ export const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme, onNavigate
             ) : (
               <Moon className="w-4 h-4 text-slate-700" />
             )}
+          </button>
+
+          {/* Quick CTA Button on Desktop */}
+          <button
+            onClick={() => {
+              onNavigateTab('home');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="hidden sm:inline-flex items-center space-x-1.5 px-4 py-2 rounded-full bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-md shadow-brand-500/20 touch-press transition-all"
+          >
+            <UploadCloud className="w-4 h-4" />
+            <span>Select File</span>
           </button>
         </div>
       </div>
