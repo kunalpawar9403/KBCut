@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,9 +27,7 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
+        cache: 'gradle'
 
     - name: Install Node Dependencies
       run: npm ci
@@ -44,9 +45,29 @@ jobs:
       run: |
         cd android
         ./gradlew assembleDebug --stacktrace
+        cp app/build/outputs/apk/debug/app-debug.apk ../kbcut-app.apk
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: kbcut-android-apk
-        path: android/app/build/outputs/apk/debug/app-debug.apk
+        path: kbcut-app.apk
+
+    - name: Create or Update GitHub Release
+      uses: softprops/action-gh-release@v2
+      if: github.ref == 'refs/heads/main'
+      with:
+        tag_name: v1.0.0
+        name: "KBCut Android App v1.0.0"
+        body: |
+          ### KBCut - Photo & PDF Size Reducer (Android APK)
+          - ⚡ 100% Offline client-side photo & PDF compression
+          - 🎯 Tailored presets for SSC, UPSC, MPSC, Aadhaar, PAN, IBPS
+          - 🔒 100% Private, zero cloud uploads
+
+          **Download APK below:**
+        files: kbcut-app.apk
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

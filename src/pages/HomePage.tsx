@@ -25,6 +25,7 @@ import {
   Smartphone,
 } from 'lucide-react';
 import { DownloadAppModal } from '../components/common/DownloadAppModal';
+import { getApkDownloadUrl } from '../utils/formatters';
 
 interface HomePageProps {
   onNavigateTools?: () => void;
@@ -258,8 +259,10 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             <div className="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0">
               <a
-                href="/kbcut.apk"
+                href={getApkDownloadUrl()}
                 download="kbcut-app.apk"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="px-6 py-4 rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-brand-700 font-black text-sm flex items-center justify-center space-x-2.5 shadow-lg touch-press transition-all"
               >
                 <Download className="w-5 h-5 text-brand-600 animate-bounce" />

@@ -15,6 +15,7 @@ import {
   Download,
 } from 'lucide-react';
 import { DownloadAppModal } from '../components/common/DownloadAppModal';
+import { getApkDownloadUrl } from '../utils/formatters';
 
 interface SettingsPageProps {
   theme: 'light' | 'dark';
@@ -85,8 +86,10 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ theme, onToggleTheme
 
         <div className="flex flex-col sm:flex-row gap-2 pt-1">
           <a
-            href="/kbcut.apk"
+            href={getApkDownloadUrl()}
             download="kbcut-app.apk"
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex-1 py-2.5 px-4 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold text-xs flex items-center justify-center space-x-2 shadow-sm touch-press transition-colors"
           >
             <Download className="w-4 h-4" />

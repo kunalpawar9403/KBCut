@@ -13,6 +13,8 @@ import {
   Share2,
 } from 'lucide-react';
 
+import { getApkDownloadUrl, APK_RELEASE_URL, GITHUB_REPO_URL } from '../../utils/formatters';
+
 interface DownloadAppModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -34,9 +36,11 @@ export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({ isOpen, onCl
   };
 
   const handleDirectApkDownload = () => {
+    const url = getApkDownloadUrl();
     const anchor = document.createElement('a');
-    anchor.href = '/kbcut.apk';
+    anchor.href = url;
     anchor.download = 'kbcut-app.apk';
+    anchor.target = '_blank';
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);

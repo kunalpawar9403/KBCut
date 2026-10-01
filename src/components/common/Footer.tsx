@@ -1,6 +1,7 @@
 import React from 'react';
 import { useI18n } from '../../i18n';
 import { ShieldCheck, Heart, Sparkles, FileText, ArrowRight, Lock, Download } from 'lucide-react';
+import { getApkDownloadUrl } from '../../utils/formatters';
 
 interface FooterProps {
   onNavigateTab?: (tab: 'home' | 'tools' | 'history' | 'settings') => void;
@@ -154,8 +155,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateTab, onNavigateSeo }) 
               <li>WebAssembly & Web Workers</li>
               <li className="pt-2">
                 <a
-                  href="/kbcut.apk"
+                  href={getApkDownloadUrl()}
                   download="kbcut-app.apk"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold text-xs shadow-md shadow-brand-500/20 transition-all touch-press"
                 >
                   <Download className="w-3.5 h-3.5" />

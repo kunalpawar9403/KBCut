@@ -35,3 +35,13 @@ export function formatDate(timestamp: number): string {
   }
   return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
 }
+
+export const GITHUB_REPO_URL = 'https://github.com/kunalpawar9403/KBCut';
+export const APK_RELEASE_URL = 'https://github.com/kunalpawar9403/KBCut/releases/download/v1.0.0/kbcut-app.apk';
+
+export function getApkDownloadUrl(): string {
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return '/kbcut.apk';
+  }
+  return APK_RELEASE_URL;
+}
