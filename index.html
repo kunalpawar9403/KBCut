@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>KBCut - Photo & PDF Size Reducer | Get Under the Limit</title>
+    <meta name="description" content="Reduce photo, signature and PDF size in KB for SSC, UPSC, MPSC, Banking, Passport & Aadhaar exams in one tap. 100% private, files never leave your device." />
+    <meta name="keywords" content="photo compressor, pdf compressor, reduce photo to 50kb, reduce pdf to 200kb, signature 140x60, ssc photo resize, upsc photo compressor, aadhaar pdf resize" />
+    <meta name="theme-color" content="#1F4FD8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="KBCut" />
+    
+    <!-- Icons & Manifest -->
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Open Graph / SEO -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="KBCut - Photo & PDF Size Reducer" />
+    <meta property="og:description" content="Get under the limit. Compress photos, signatures, and PDFs in your browser. 100% private, offline-ready." />
+    <meta property="og:image" content="/logo.png" />
+
+    <!-- Google Fonts: Poppins & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  </head>
+  <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased selection:bg-brand-500 selection:text-white min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Register Service Worker if supported
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>
