@@ -38,24 +38,24 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-40 w-full glass border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 sm:h-20 flex items-center justify-between">
         {/* Left: Brand Identity */}
         <div className="flex items-center space-x-6">
           <button
             onClick={onNavigateHome}
-            className="flex items-center space-x-3 text-left focus:outline-none group"
+            className="flex items-center space-x-3.5 text-left focus:outline-none group py-1"
           >
             <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-brand-500 to-accent-500 rounded-2xl blur-sm opacity-30 group-hover:opacity-70 transition duration-300" />
+              <div className="absolute -inset-1.5 bg-gradient-to-r from-brand-500 to-accent-500 rounded-2xl blur-md opacity-35 group-hover:opacity-85 transition duration-300" />
               <img
                 src="/logo.png"
                 alt="KBCut Logo"
-                className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md object-contain bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-700/70 p-0.5 transition-transform group-hover:scale-105"
+                className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl shadow-lg object-contain bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 p-1 transition-transform group-hover:scale-105"
               />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-600 dark:from-brand-400 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent font-sans">
+                <span className="font-extrabold text-2xl sm:text-2xl tracking-tight bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-600 dark:from-brand-400 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent font-sans">
                   KBCut
                 </span>
                 <span className="hidden xs:inline-flex items-center space-x-1 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-accent-50 text-accent-700 dark:bg-accent-950/80 dark:text-accent-400 border border-accent-200/60 dark:border-accent-800/60">
@@ -63,7 +63,7 @@ export const Header: React.FC<HeaderProps> = ({
                   100% Private
                 </span>
               </div>
-              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 -mt-0.5 hidden md:block">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 -mt-0.5 hidden md:block">
                 Get under the limit
               </p>
             </div>

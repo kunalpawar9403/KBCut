@@ -22,17 +22,17 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateTab, onNavigateSeo }) 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10">
           {/* Col 1: Brand & Privacy Guarantee */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3.5">
               <img
                 src="/logo.png"
                 alt="KBCut Logo"
-                className="w-10 h-10 rounded-2xl shadow-sm object-contain bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1"
+                className="w-14 h-14 rounded-2xl shadow-md object-contain bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1.5"
               />
               <div>
-                <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-brand-600 to-indigo-600 dark:from-brand-400 dark:to-indigo-300 bg-clip-text text-transparent">
+                <span className="font-extrabold text-2xl tracking-tight bg-gradient-to-r from-brand-600 to-indigo-600 dark:from-brand-400 dark:to-indigo-300 bg-clip-text text-transparent">
                   KBCut
                 </span>
-                <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 -mt-0.5">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 -mt-0.5">
                   Photo & PDF Size Reducer
                 </p>
               </div>
