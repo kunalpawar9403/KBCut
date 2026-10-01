@@ -11,7 +11,10 @@ import {
   Info,
   DownloadCloud,
   Check,
+  Smartphone,
+  Download,
 } from 'lucide-react';
+import { DownloadAppModal } from '../components/common/DownloadAppModal';
 
 interface SettingsPageProps {
   theme: 'light' | 'dark';
@@ -21,6 +24,7 @@ interface SettingsPageProps {
 export const SettingsPage: React.FC<SettingsPageProps> = ({ theme, onToggleTheme }) => {
   const { lang, setLang, t } = useI18n();
   const [canInstall, setCanInstall] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
 
   useEffect(() => {
     const unsubscribe = pwaService.subscribe((installable) => setCanInstall(installable));
@@ -52,6 +56,51 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ theme, onToggleTheme
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
           Preferences & app details
         </p>
+      </div>
+
+      {/* KBCut Android App & APK Card */}
+      <div className="p-5 rounded-3xl bg-gradient-to-br from-brand-50 to-blue-50 dark:from-slate-900 dark:to-brand-950/40 border border-brand-200/90 dark:border-brand-800 shadow-soft space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-2xl bg-brand-500 text-white flex items-center justify-center shadow-sm">
+              <Smartphone className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-1.5">
+                <span>Android App (.APK)</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent-100 dark:bg-accent-950 text-accent-700 dark:text-accent-300 font-extrabold">
+                  Offline
+                </span>
+              </h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Direct install on any Android phone (14 MB)
+              </p>
+            </div>
+          </div>
+
+          <span className="text-xs font-bold text-brand-600 dark:text-brand-400">
+            v1.0.0
+          </span>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-2 pt-1">
+          <a
+            href="/kbcut.apk"
+            download="kbcut-app.apk"
+            className="flex-1 py-2.5 px-4 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold text-xs flex items-center justify-center space-x-2 shadow-sm touch-press transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download APK (14 MB)</span>
+          </a>
+
+          <button
+            type="button"
+            onClick={() => setShowDownloadModal(true)}
+            className="py-2.5 px-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center justify-center space-x-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 touch-press transition-colors"
+          >
+            <span>Installation Guide</span>
+          </button>
+        </div>
       </div>
 
       {/* PWA Install Banner */}
@@ -171,6 +220,12 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ theme, onToggleTheme
           <span>{t('settings.offlineReady')}</span>
         </div>
       </div>
+
+      {/* Download App Modal */}
+      <DownloadAppModal
+        isOpen={showDownloadModal}
+        onClose={() => setShowDownloadModal(false)}
+      />
     </div>
   );
 };

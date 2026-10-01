@@ -11,6 +11,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
     "canvas-confetti": "^1.9.4",
     "lucide-react": "^1.16.0",
     "pdf-lib": "^1.17.1",

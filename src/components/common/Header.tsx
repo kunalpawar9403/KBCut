@@ -1,6 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useI18n, Language } from '../../i18n';
-import { Sun, Moon, ShieldCheck, Sparkles, Wrench, Clock, FileText, ChevronDown, UploadCloud } from 'lucide-react';
+import { DownloadAppModal } from './DownloadAppModal';
+import {
+  Sun,
+  Moon,
+  ShieldCheck,
+  Sparkles,
+  Wrench,
+  Clock,
+  FileText,
+  ChevronDown,
+  UploadCloud,
+  Smartphone,
+} from 'lucide-react';
 
 interface HeaderProps {
   theme: 'light' | 'dark';
@@ -18,6 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateHome,
 }) => {
   const { lang, setLang, t } = useI18n();
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
 
   const handleLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setLang(e.target.value as Language);
@@ -160,6 +173,16 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </button>
 
+          {/* Download App / APK Button */}
+          <button
+            onClick={() => setShowDownloadModal(true)}
+            aria-label="Download KBCut Android App APK"
+            className="inline-flex items-center space-x-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-gradient-to-r from-accent-500 to-emerald-600 hover:from-accent-600 hover:to-emerald-700 text-white font-extrabold text-xs shadow-sm hover:shadow-md transition-all touch-press"
+          >
+            <Smartphone className="w-3.5 h-3.5" />
+            <span>Download App</span>
+          </button>
+
           {/* Quick CTA Button on Desktop */}
           <button
             onClick={() => {
@@ -173,6 +196,12 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Download App Modal */}
+      <DownloadAppModal
+        isOpen={showDownloadModal}
+        onClose={() => setShowDownloadModal(false)}
+      />
     </header>
   );
 };

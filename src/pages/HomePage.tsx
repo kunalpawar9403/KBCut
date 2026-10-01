@@ -21,7 +21,10 @@ import {
   FileCheck,
   Cpu,
   HelpCircle,
+  Download,
+  Smartphone,
 } from 'lucide-react';
+import { DownloadAppModal } from '../components/common/DownloadAppModal';
 
 interface HomePageProps {
   onNavigateTools?: () => void;
@@ -44,6 +47,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     percent: 0,
   });
   const [result, setResult] = useState<UnifiedCompressResult | null>(null);
+  const [showDownloadModal, setShowDownloadModal] = useState<boolean>(false);
 
   const handleFileSelected = (file: File, preset?: ExamPreset) => {
     setSelectedFile(file);
@@ -222,7 +226,60 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </section>
 
-      {/* 4. Complete Document Tools Callout */}
+      {/* 4. Download Android App / APK Banner */}
+      <section id="download-app" className="w-full max-w-4xl mx-auto px-2 scroll-mt-24">
+        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-brand-600 via-brand-700 to-indigo-800 text-white shadow-elevated relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-accent-500/20 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-3 max-w-xl">
+              <div className="flex items-center space-x-2">
+                <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-white/20 text-white font-extrabold text-xs backdrop-blur-sm border border-white/20">
+                  <Smartphone className="w-3.5 h-3.5 text-accent-300" />
+                  <span>Official Android App</span>
+                </span>
+                <span className="text-xs font-bold text-brand-200">v1.0.0 • 14 MB</span>
+              </div>
+
+              <h3 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
+                Download KBCut Android App (.APK)
+              </h3>
+
+              <p className="text-xs sm:text-sm text-brand-100 leading-relaxed">
+                Resize exam photos and certificates anytime, anywhere — even with zero internet. Direct Android install, no Google Play Store account required.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-semibold text-brand-200">
+                <span className="px-2.5 py-1 rounded-lg bg-black/20 backdrop-blur-sm">⚡ 100% Offline</span>
+                <span className="px-2.5 py-1 rounded-lg bg-black/20 backdrop-blur-sm">🔒 Zero Cloud Uploads</span>
+                <span className="px-2.5 py-1 rounded-lg bg-black/20 backdrop-blur-sm">📱 Android 8.0+</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0">
+              <a
+                href="/kbcut.apk"
+                download="kbcut-app.apk"
+                className="px-6 py-4 rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-brand-700 font-black text-sm flex items-center justify-center space-x-2.5 shadow-lg touch-press transition-all"
+              >
+                <Download className="w-5 h-5 text-brand-600 animate-bounce" />
+                <span>Download APK (14 MB)</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => setShowDownloadModal(true)}
+                className="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold text-xs flex items-center justify-center space-x-2 touch-press transition-all"
+              >
+                <Smartphone className="w-4 h-4 text-accent-300" />
+                <span>Installation Guide & PWA</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Complete Document Tools Callout */}
       <section className="w-full max-w-4xl mx-auto px-2">
         <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white shadow-elevated relative overflow-hidden">
           <div className="absolute top-0 right-0 w-80 h-80 bg-brand-500/20 rounded-full blur-3xl pointer-events-none" />
@@ -308,6 +365,12 @@ export const HomePage: React.FC<HomePageProps> = ({
         isOpen={isCompressing}
         type={selectedFile?.type === 'application/pdf' ? 'pdf' : 'image'}
         progress={compressProgress}
+      />
+
+      {/* Download App Modal */}
+      <DownloadAppModal
+        isOpen={showDownloadModal}
+        onClose={() => setShowDownloadModal(false)}
       />
     </div>
   );
