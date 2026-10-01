@@ -4,13 +4,11 @@ import { DownloadAppModal } from './DownloadAppModal';
 import {
   Sun,
   Moon,
-  ShieldCheck,
   Sparkles,
   Wrench,
   Clock,
   FileText,
   ChevronDown,
-  UploadCloud,
   Smartphone,
 } from 'lucide-react';
 
@@ -85,16 +83,6 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Desktop Navigation Links (Integrated directly in navbar) */}
           <nav className="hidden lg:flex items-center space-x-1 pl-4 border-l border-slate-200 dark:border-slate-800">
             <button
-              onClick={() => onNavigateTab('home')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
-                activeTab === 'home'
-                  ? 'bg-brand-50 text-brand-600 dark:bg-brand-950/80 dark:text-brand-400'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              Compressor
-            </button>
-            <button
               onClick={() => onNavigateTab('tools')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center space-x-1.5 ${
                 activeTab === 'tools'
@@ -134,15 +122,6 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Right Controls */}
         <div className="flex items-center space-x-2.5 sm:space-x-3">
-          {/* Privacy badge */}
-          <div
-            title={t('app.privacyBadge')}
-            className="hidden xl:flex items-center space-x-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-700/80 px-3 py-1.5 rounded-full shadow-sm"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-accent-500 shrink-0" />
-            <span>On-Device Only</span>
-          </div>
-
           {/* Language Switcher */}
           <div className="relative">
             <select
@@ -173,26 +152,14 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </button>
 
-          {/* Download App / APK Button */}
+          {/* Download App / APK Button (Mobile only) */}
           <button
             onClick={() => setShowDownloadModal(true)}
             aria-label="Download KBCut Android App APK"
-            className="inline-flex items-center space-x-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-gradient-to-r from-accent-500 to-emerald-600 hover:from-accent-600 hover:to-emerald-700 text-white font-extrabold text-xs shadow-sm hover:shadow-md transition-all touch-press"
+            className="inline-flex md:hidden items-center space-x-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-gradient-to-r from-accent-500 to-emerald-600 hover:from-accent-600 hover:to-emerald-700 text-white font-extrabold text-xs shadow-sm hover:shadow-md transition-all touch-press"
           >
             <Smartphone className="w-3.5 h-3.5" />
             <span>Download App</span>
-          </button>
-
-          {/* Quick CTA Button on Desktop */}
-          <button
-            onClick={() => {
-              onNavigateTab('home');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className="hidden sm:inline-flex items-center space-x-1.5 px-4 py-2 rounded-full bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-md shadow-brand-500/20 touch-press transition-all"
-          >
-            <UploadCloud className="w-4 h-4" />
-            <span>Select File</span>
           </button>
         </div>
       </div>
