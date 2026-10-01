@@ -74,7 +74,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ theme, onToggleTheme
                 </span>
               </h4>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Direct install on any Android phone (14 MB)
+                Direct install on any Android phone (7.2 MB)
               </p>
             </div>
           </div>
@@ -93,7 +93,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ theme, onToggleTheme
             className="flex-1 py-2.5 px-4 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold text-xs flex items-center justify-center space-x-2 shadow-sm touch-press transition-colors"
           >
             <Download className="w-4 h-4" />
-            <span>Download APK (14 MB)</span>
+            <span>Download APK (7.2 MB)</span>
           </a>
 
           <button

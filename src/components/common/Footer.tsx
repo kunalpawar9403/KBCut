@@ -162,7 +162,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateTab, onNavigateSeo }) 
                   className="inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold text-xs shadow-md shadow-brand-500/20 transition-all touch-press"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Download Android APK (14 MB)</span>
+                  <span>Download Android APK (7.2 MB)</span>
                 </a>
               </li>
             </ul>

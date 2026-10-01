@@ -239,7 +239,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   <Smartphone className="w-3.5 h-3.5 text-accent-300" />
                   <span>Official Android App</span>
                 </span>
-                <span className="text-xs font-bold text-brand-200">v1.0.0 • 14 MB</span>
+                <span className="text-xs font-bold text-brand-200">v1.0.0 • 7.2 MB</span>
               </div>
 
               <h3 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
@@ -266,7 +266,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 className="px-6 py-4 rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-brand-700 font-black text-sm flex items-center justify-center space-x-2.5 shadow-lg touch-press transition-all"
               >
                 <Download className="w-5 h-5 text-brand-600 animate-bounce" />
-                <span>Download APK (14 MB)</span>
+                <span>Download APK (7.2 MB)</span>
               </a>
 
               <button

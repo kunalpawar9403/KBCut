@@ -44,7 +44,7 @@ export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({ isOpen, onCl
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);
-    toast.success('KBCut APK download started! (14 MB)');
+    toast.success('KBCut APK download started! (7.2 MB)');
   };
 
   const handleShare = async () => {
@@ -103,7 +103,7 @@ export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({ isOpen, onCl
               Android APK (Recommended)
             </span>
             <span className="text-[11px] font-bold text-brand-600 dark:text-brand-400">
-              14 MB • Android 8.0+
+              7.2 MB • Android 8.0+
             </span>
           </div>
 
@@ -121,7 +121,7 @@ export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({ isOpen, onCl
             className="w-full py-3 px-4 rounded-xl bg-brand-500 hover:bg-brand-600 active:bg-brand-700 text-white font-extrabold text-sm shadow-md shadow-brand-500/30 flex items-center justify-center space-x-2 touch-press transition-colors"
           >
             <Download className="w-4 h-4 animate-bounce" />
-            <span>Download APK File (14 MB)</span>
+            <span>Download APK File (7.2 MB)</span>
           </button>
 
           {/* Sideload Instruction Toggle */}
