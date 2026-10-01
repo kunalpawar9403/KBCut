@@ -1,6 +1,6 @@
 import React from 'react';
 import { useI18n } from '../../i18n';
-import { Home, Wrench, Clock, Settings, Sparkles } from 'lucide-react';
+import { Home, Wrench, Clock, Settings } from 'lucide-react';
 
 export type NavTab = 'home' | 'tools' | 'history' | 'settings';
 
@@ -12,41 +12,57 @@ interface BottomNavProps {
 export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onChangeTab }) => {
   const { t } = useI18n();
 
-  const tabs: { id: NavTab; label: string; icon: React.ReactNode }[] = [
-    { id: 'home', label: t('nav.home'), icon: <Home className="w-5 h-5" /> },
-    { id: 'tools', label: t('nav.tools'), icon: <Wrench className="w-5 h-5" /> },
-    { id: 'history', label: t('nav.history'), icon: <Clock className="w-5 h-5" /> },
-    { id: 'settings', label: t('nav.settings'), icon: <Settings className="w-5 h-5" /> },
+  const tabs: { id: NavTab; label: string; icon: React.ElementType; badge?: string }[] = [
+    { id: 'home', label: t('nav.home'), icon: Home },
+    { id: 'tools', label: t('nav.tools'), icon: Wrench, badge: '6' },
+    { id: 'history', label: t('nav.history'), icon: Clock },
+    { id: 'settings', label: t('nav.settings'), icon: Settings },
   ];
 
   return (
     <nav
-      aria-label="Bottom Navigation"
-      className="fixed bottom-0 left-0 right-0 z-40 md:hidden px-3 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-1 pointer-events-none"
+      aria-label="Mobile bottom navigation"
+      className="fixed bottom-0 left-0 right-0 z-40 md:hidden pb-[env(safe-area-inset-bottom)]"
     >
-      <div className="pointer-events-auto max-w-sm mx-auto glass rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-elevated flex items-center justify-around h-16 px-2">
+      <div className="mx-3 mb-2 glass rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-[0_4px_24px_rgba(0,0,0,0.10)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.35)] flex items-stretch h-[60px] overflow-hidden">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
+          const Icon = tab.icon;
           return (
             <button
               key={tab.id}
               onClick={() => onChangeTab(tab.id)}
-              className={`relative flex-1 flex flex-col items-center justify-center py-1 transition-all min-h-[52px] touch-press ${
+              className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 py-1 transition-all duration-200 touch-press ${
                 isActive
-                  ? 'text-brand-600 dark:text-brand-400 font-extrabold'
-                  : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+                  ? 'text-brand-600 dark:text-brand-400'
+                  : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
               }`}
             >
-              <div
-                className={`p-1.5 rounded-2xl transition-all duration-200 ${
+              {/* Active top indicator */}
+              {isActive && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-brand-500" />
+              )}
+
+              {/* Icon with optional badge */}
+              <div className="relative">
+                <div className={`p-1.5 rounded-xl transition-all duration-200 ${
                   isActive
-                    ? 'scale-110 bg-brand-500 text-white shadow-md shadow-brand-500/30'
-                    : 'text-slate-500 dark:text-slate-400'
-                }`}
-              >
-                {tab.icon}
+                    ? 'bg-brand-50 dark:bg-brand-950/80'
+                    : ''
+                }`}>
+                  <Icon className="w-[18px] h-[18px]" />
+                </div>
+                {tab.badge && (
+                  <span className="absolute -top-1 -right-1.5 min-w-[14px] h-[14px] flex items-center justify-center rounded-full bg-brand-500 text-white text-[8px] font-black px-0.5 leading-none">
+                    {tab.badge}
+                  </span>
+                )}
               </div>
-              <span className={`text-[10px] mt-0.5 tracking-tight ${isActive ? 'font-black' : 'font-medium'}`}>
+
+              {/* Label */}
+              <span className={`text-[10px] leading-none tracking-tight ${
+                isActive ? 'font-black' : 'font-medium'
+              }`}>
                 {tab.label}
               </span>
             </button>
