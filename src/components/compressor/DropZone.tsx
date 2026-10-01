@@ -1,6 +1,16 @@
 import React, { useRef, useState } from 'react';
 import { useI18n } from '../../i18n';
-import { Image, FileText, Camera, Shield, Sparkles } from 'lucide-react';
+import {
+  Image,
+  FileText,
+  Camera,
+  Shield,
+  Sparkles,
+  UploadCloud,
+  CheckCircle2,
+  Lock,
+  ArrowRight,
+} from 'lucide-react';
 import { EXAM_PRESETS, ExamPreset } from '../../data/presets';
 
 interface DropZoneProps {
@@ -11,6 +21,7 @@ interface DropZoneProps {
 export const DropZone: React.FC<DropZoneProps> = ({ onFileSelected, onPresetClick }) => {
   const { t } = useI18n();
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -34,7 +45,7 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFileSelected, onPresetClic
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       onFileSelected(e.target.files[0]);
-      e.target.value = ''; // Reset for re-selection
+      e.target.value = '';
     }
   };
 
@@ -43,8 +54,8 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFileSelected, onPresetClic
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`w-full transition-all duration-200 ${
-        isDragging ? 'ring-4 ring-brand-500/30 scale-[1.01]' : ''
+      className={`w-full transition-all duration-300 ${
+        isDragging ? 'ring-4 ring-brand-500/40 scale-[1.01]' : ''
       }`}
     >
       {/* Hidden native inputs */}
@@ -56,6 +67,14 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFileSelected, onPresetClic
         className="hidden"
       />
       <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+      <input
         ref={pdfInputRef}
         type="file"
         accept="application/pdf"
@@ -63,64 +82,122 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFileSelected, onPresetClic
         className="hidden"
       />
 
-      {/* Main Headline */}
-      <div className="text-center mb-6 pt-2">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug">
-          {t('app.homeHeadline')}
+      {/* Hero Badge & Headline */}
+      <div className="text-center mb-7 pt-2">
+        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-brand-50/90 dark:bg-brand-950/80 border border-brand-200/80 dark:border-brand-800/80 text-brand-700 dark:text-brand-300 text-xs font-bold mb-3 shadow-sm">
+          <Sparkles className="w-3.5 h-3.5 text-brand-500" />
+          <span>SSC • UPSC • Banking • Passport • Aadhaar</span>
+        </div>
+
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug sm:leading-tight">
+          Make your file{' '}
+          <span className="bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-600 dark:from-brand-400 dark:to-indigo-300 bg-clip-text text-transparent">
+            under the size limit
+          </span>{' '}
+          in one tap
         </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-md mx-auto">
-          {t('app.tagline')} • {t('app.subtagline')}
+
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2 max-w-md mx-auto leading-relaxed">
+          {t('app.tagline')} • Fix photo, signature & PDF sizes in seconds. Files stay 100% on your device.
         </p>
       </div>
 
-      {/* Two Big Action Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+      {/* Two Mega Action Cards (Photo & PDF) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-7">
         {/* Photo Card */}
-        <button
-          type="button"
-          onClick={() => photoInputRef.current?.click()}
-          className="group relative flex flex-col items-center justify-center p-6 sm:p-7 rounded-3xl bg-white dark:bg-slate-900 border-2 border-brand-500/20 dark:border-brand-500/30 hover:border-brand-500 dark:hover:border-brand-500 shadow-soft hover:shadow-elevated transition-all touch-press min-h-[170px] text-center"
-        >
-          <div className="w-16 h-16 rounded-2xl bg-brand-50 dark:bg-brand-950/80 text-brand-600 dark:text-brand-400 flex items-center justify-center mb-3.5 group-hover:scale-110 transition-transform">
-            <Image className="w-8 h-8" />
+        <div className="relative group rounded-3xl bg-white dark:bg-slate-900 border-2 border-slate-200/80 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500 shadow-soft hover:shadow-elevated transition-all duration-300 flex flex-col justify-between p-6 card-glow">
+          <div className="absolute top-4 right-4">
+            <span className="px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-950 text-brand-600 dark:text-brand-400 font-bold text-[10px] uppercase tracking-wider">
+              Photo / Sign
+            </span>
           </div>
-          <span className="font-bold text-lg text-slate-900 dark:text-white">
-            {t('home.selectPhoto')}
-          </span>
-          <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-            <Camera className="w-3.5 h-3.5" />
-            {t('home.selectPhotoSub')}
-          </span>
-        </button>
+
+          <div
+            onClick={() => photoInputRef.current?.click()}
+            className="cursor-pointer flex flex-col items-center text-center pt-2"
+          >
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-500 to-blue-600 text-white flex items-center justify-center mb-3.5 shadow-md shadow-brand-500/25 group-hover:scale-110 transition-transform duration-300">
+              <Image className="w-8 h-8" />
+            </div>
+            <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">
+              {t('home.selectPhoto')}
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-[220px]">
+              {t('home.selectPhotoSub')}
+            </p>
+          </div>
+
+          {/* Quick Dual Actions: Browse or Direct Camera */}
+          <div className="mt-5 grid grid-cols-2 gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => photoInputRef.current?.click()}
+              className="py-2.5 px-3 rounded-xl bg-brand-50 dark:bg-brand-950/70 hover:bg-brand-100 dark:hover:bg-brand-900 text-brand-700 dark:text-brand-300 font-bold text-xs flex items-center justify-center space-x-1.5 transition-colors touch-press"
+            >
+              <UploadCloud className="w-3.5 h-3.5" />
+              <span>Gallery</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => cameraInputRef.current?.click()}
+              className="py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center space-x-1.5 transition-colors touch-press"
+            >
+              <Camera className="w-3.5 h-3.5 text-brand-500" />
+              <span>Camera</span>
+            </button>
+          </div>
+        </div>
 
         {/* PDF Card */}
-        <button
-          type="button"
-          onClick={() => pdfInputRef.current?.click()}
-          className="group relative flex flex-col items-center justify-center p-6 sm:p-7 rounded-3xl bg-white dark:bg-slate-900 border-2 border-accent-500/20 dark:border-accent-500/30 hover:border-accent-500 dark:hover:border-accent-500 shadow-soft hover:shadow-elevated transition-all touch-press min-h-[170px] text-center"
-        >
-          <div className="w-16 h-16 rounded-2xl bg-accent-50 dark:bg-accent-950/80 text-accent-600 dark:text-accent-400 flex items-center justify-center mb-3.5 group-hover:scale-110 transition-transform">
-            <FileText className="w-8 h-8" />
+        <div className="relative group rounded-3xl bg-white dark:bg-slate-900 border-2 border-slate-200/80 dark:border-slate-800 hover:border-accent-500 dark:hover:border-accent-500 shadow-soft hover:shadow-elevated transition-all duration-300 flex flex-col justify-between p-6 card-glow">
+          <div className="absolute top-4 right-4">
+            <span className="px-2 py-0.5 rounded-full bg-accent-50 dark:bg-accent-950 text-accent-700 dark:text-accent-400 font-bold text-[10px] uppercase tracking-wider">
+              PDF Document
+            </span>
           </div>
-          <span className="font-bold text-lg text-slate-900 dark:text-white">
-            {t('home.selectPdf')}
-          </span>
-          <span className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            {t('home.selectPdfSub')}
-          </span>
-        </button>
+
+          <div
+            onClick={() => pdfInputRef.current?.click()}
+            className="cursor-pointer flex flex-col items-center text-center pt-2"
+          >
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-accent-500 to-emerald-600 text-white flex items-center justify-center mb-3.5 shadow-md shadow-accent-500/25 group-hover:scale-110 transition-transform duration-300">
+              <FileText className="w-8 h-8" />
+            </div>
+            <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">
+              {t('home.selectPdf')}
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-[220px]">
+              {t('home.selectPdfSub')}
+            </p>
+          </div>
+
+          <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => pdfInputRef.current?.click()}
+              className="w-full py-2.5 px-3 rounded-xl bg-accent-50 dark:bg-accent-950/70 hover:bg-accent-100 dark:hover:bg-accent-900 text-accent-700 dark:text-accent-300 font-bold text-xs flex items-center justify-center space-x-1.5 transition-colors touch-press"
+            >
+              <UploadCloud className="w-3.5 h-3.5" />
+              <span>Browse PDF Document</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Quick Presets Row */}
-      <div className="mb-6">
+      {/* Quick Presets Carousel with Exam Branding */}
+      <div className="mb-7">
         <div className="flex items-center justify-between mb-3 px-1">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-brand-500" />
             {t('home.quickPresets')}
           </span>
+          <span className="text-[11px] font-semibold text-brand-600 dark:text-brand-400">
+            One-Tap Auto Fit
+          </span>
         </div>
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none -mx-1 px-1">
-          {EXAM_PRESETS.slice(0, 5).map((preset) => (
+
+        <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none -mx-1 px-1">
+          {EXAM_PRESETS.map((preset) => (
             <button
               key={preset.id}
               onClick={() => {
@@ -132,10 +209,10 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFileSelected, onPresetClic
                   photoInputRef.current?.click();
                 }
               }}
-              className="shrink-0 flex items-center space-x-2 px-3.5 py-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-brand-500 shadow-sm text-xs font-semibold text-slate-700 dark:text-slate-200 touch-press"
+              className="shrink-0 flex items-center space-x-2.5 px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-brand-500 shadow-sm text-xs font-bold text-slate-800 dark:text-slate-200 transition-all touch-press group"
             >
-              <span>{preset.name}</span>
-              <span className="px-1.5 py-0.5 rounded-full bg-brand-50 dark:bg-brand-950 text-brand-600 dark:text-brand-400 font-bold text-[10px]">
+              <span className="group-hover:text-brand-500 transition-colors">{preset.name}</span>
+              <span className="px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-950 text-brand-600 dark:text-brand-400 font-extrabold text-[10px] border border-brand-100 dark:border-brand-900">
                 {preset.badge || `< ${preset.targetKb} KB`}
               </span>
             </button>
@@ -143,12 +220,26 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFileSelected, onPresetClic
         </div>
       </div>
 
-      {/* Security & Privacy Guarantee Callout */}
-      <div className="flex items-center justify-center space-x-2 py-3 px-4 rounded-2xl bg-accent-50/70 dark:bg-accent-950/40 border border-accent-200/60 dark:border-accent-900/60 text-accent-900 dark:text-accent-300 text-xs text-center font-medium">
-        <Shield className="w-4 h-4 shrink-0 text-accent-600 dark:text-accent-400" />
-        <span>{t('app.privacyBadge')}</span>
-        <span className="hidden sm:inline">•</span>
-        <span className="hidden sm:inline text-accent-700 dark:text-accent-400">{t('app.privacySubtext')}</span>
+      {/* Security & Guarantee Strip */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-3xl bg-slate-100/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 text-xs shadow-sm">
+        <div className="flex items-center space-x-2.5">
+          <div className="w-8 h-8 rounded-xl bg-accent-500 text-white flex items-center justify-center shrink-0">
+            <Lock className="w-4 h-4" />
+          </div>
+          <div>
+            <h4 className="font-extrabold text-slate-900 dark:text-white">
+              {t('app.privacyBadge')}
+            </h4>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {t('app.privacySubtext')}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-2 text-[11px] font-bold text-accent-700 dark:text-accent-400 shrink-0">
+          <CheckCircle2 className="w-4 h-4 text-accent-500" />
+          <span>UIDAI & Exam Portal Compliant</span>
+        </div>
       </div>
     </div>
   );

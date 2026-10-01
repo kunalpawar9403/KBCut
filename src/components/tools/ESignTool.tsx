@@ -4,18 +4,35 @@ import { storageService, SavedSignature } from '../../services/storage';
 import { stampSignatureOnPdf } from '../../utils/pdfTools';
 import { platformService } from '../../services/platform';
 import { toast } from '../common/Toast';
-import { PenTool, Trash2, Bookmark, Check, Download, FileText, Move } from 'lucide-react';
+import {
+  PenTool,
+  Trash2,
+  Bookmark,
+  Check,
+  Download,
+  FileText,
+  Palette,
+  Sparkles,
+} from 'lucide-react';
+
+const INK_COLORS = [
+  { name: 'Official Blue', hex: '#1D4ED8' },
+  { name: 'Standard Black', hex: '#0F172A' },
+  { name: 'Exam Red', hex: '#DC2626' },
+];
 
 export const ESignTool: React.FC = () => {
   const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [selectedInk, setSelectedInk] = useState(INK_COLORS[0].hex);
+  const [strokeWidth, setStrokeWidth] = useState(2.8);
   const [savedSignatures, setSavedSignatures] = useState<SavedSignature[]>([]);
   const [selectedSigDataUrl, setSelectedSigDataUrl] = useState<string | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [xPos, setXPos] = useState<number>(60); // % from left
-  const [yPos, setYPos] = useState<number>(10); // % from bottom
-  const [sigWidth, setSigWidth] = useState<number>(25); // % of page width
+  const [xPos, setXPos] = useState<number>(60);
+  const [yPos, setYPos] = useState<number>(10);
+  const [sigWidth, setSigWidth] = useState<number>(25);
   const [isExporting, setIsExporting] = useState(false);
   const pdfInputRef = useRef<HTMLInputElement>(null);
 
@@ -28,7 +45,6 @@ export const ESignTool: React.FC = () => {
     setSavedSignatures(list);
   };
 
-  // Canvas drawing handlers
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -40,10 +56,10 @@ export const ESignTool: React.FC = () => {
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
 
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = strokeWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.strokeStyle = '#0F172A'; // Dark blue-black ink
+    ctx.strokeStyle = selectedInk;
     ctx.beginPath();
     ctx.moveTo(clientX - rect.left, clientY - rect.top);
   };
@@ -97,7 +113,7 @@ export const ESignTool: React.FC = () => {
       const signedBlob = await stampSignatureOnPdf(
         pdfFile,
         selectedSigDataUrl,
-        0, // page 1
+        0,
         xPos,
         yPos,
         sigWidth
@@ -115,30 +131,50 @@ export const ESignTool: React.FC = () => {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-1.5">
-          <PenTool className="w-4 h-4 text-brand-500" />
-          <span>{t('tools.esign.name')}</span>
-        </h2>
-        <p className="text-xs text-slate-500">{t('tools.esign.desc')}</p>
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+            <PenTool className="w-4 h-4" />
+          </div>
+          <div>
+            <h2 className="font-extrabold text-base text-slate-900 dark:text-white">
+              {t('tools.esign.name')}
+            </h2>
+            <p className="text-xs text-slate-500">{t('tools.esign.desc')}</p>
+          </div>
+        </div>
       </div>
 
       {/* Signature Draw Pad */}
-      <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-soft space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-            {t('tools.esign.drawSignature')}
-          </span>
+      <div className="p-5 rounded-3xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          {/* Ink color chips */}
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-bold text-slate-500">Ink:</span>
+            {INK_COLORS.map((c) => (
+              <button
+                key={c.hex}
+                type="button"
+                onClick={() => setSelectedInk(c.hex)}
+                className={`w-6 h-6 rounded-full border-2 transition-transform ${
+                  selectedInk === c.hex ? 'scale-110 ring-2 ring-brand-500 ring-offset-2' : ''
+                }`}
+                style={{ backgroundColor: c.hex, borderColor: '#FFFFFF' }}
+                title={c.name}
+              />
+            ))}
+          </div>
+
           <div className="flex items-center space-x-2">
             <button
               onClick={clearCanvas}
-              className="text-xs font-semibold text-rose-500 hover:text-rose-600 px-2 py-1"
+              className="text-xs font-bold text-rose-500 hover:text-rose-600 px-2 py-1"
             >
               {t('tools.esign.clearSignature')}
             </button>
             <button
               disabled={!selectedSigDataUrl}
               onClick={handleSaveSignature}
-              className="text-xs font-bold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950 px-2.5 py-1 rounded-xl disabled:opacity-40"
+              className="text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/80 px-3 py-1.5 rounded-xl disabled:opacity-40 shadow-sm"
             >
               <Bookmark className="w-3.5 h-3.5 inline mr-1" />
               {t('tools.esign.saveSignature')}
@@ -146,10 +182,10 @@ export const ESignTool: React.FC = () => {
           </div>
         </div>
 
-        <div className="border border-slate-200 dark:border-slate-700 rounded-2xl bg-white overflow-hidden touch-none">
+        <div className="border-2 border-slate-300 dark:border-slate-700 rounded-2xl bg-white overflow-hidden touch-none shadow-inner">
           <canvas
             ref={canvasRef}
-            width={360}
+            width={380}
             height={160}
             className="w-full h-40 cursor-crosshair block"
             onMouseDown={startDrawing}
@@ -161,26 +197,29 @@ export const ESignTool: React.FC = () => {
             onTouchEnd={stopDrawing}
           />
         </div>
+        <p className="text-[11px] text-slate-400 text-center">
+          Sign with your finger or stylus above. Transparency is auto-preserved.
+        </p>
       </div>
 
       {/* Saved Signatures Carousel */}
       {savedSignatures.length > 0 && (
         <div className="space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 px-1">
+          <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 px-1">
             {t('tools.esign.savedSignatures')}
           </span>
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="flex gap-2.5 overflow-x-auto pb-2">
             {savedSignatures.map((sig) => (
               <div
                 key={sig.id}
                 onClick={() => setSelectedSigDataUrl(sig.dataUrl)}
-                className={`shrink-0 p-2 rounded-2xl border cursor-pointer bg-white dark:bg-slate-900 transition-all ${
+                className={`shrink-0 p-2.5 rounded-2xl border-2 cursor-pointer bg-white dark:bg-slate-900 transition-all ${
                   selectedSigDataUrl === sig.dataUrl
-                    ? 'border-brand-500 ring-2 ring-brand-500/20'
-                    : 'border-slate-200 dark:border-slate-800'
+                    ? 'border-purple-500 ring-2 ring-purple-500/25 shadow-md'
+                    : 'border-slate-200 dark:border-slate-800 hover:border-slate-400'
                 }`}
               >
-                <img src={sig.dataUrl} alt="Signature" className="h-10 w-24 object-contain" />
+                <img src={sig.dataUrl} alt="Signature" className="h-10 w-28 object-contain" />
               </div>
             ))}
           </div>
@@ -188,9 +227,9 @@ export const ESignTool: React.FC = () => {
       )}
 
       {/* Stamp on PDF section */}
-      <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-soft space-y-4">
+      <div className="p-5 rounded-3xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800 space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+          <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200">
             {t('tools.esign.stampOnPdf')}
           </span>
           <input
@@ -202,25 +241,25 @@ export const ESignTool: React.FC = () => {
           />
           <button
             onClick={() => pdfInputRef.current?.click()}
-            className="text-xs font-bold text-brand-600 dark:text-brand-400 px-2.5 py-1 rounded-xl bg-brand-50 dark:bg-brand-950"
+            className="text-xs font-bold text-brand-600 dark:text-brand-400 px-3 py-1.5 rounded-xl bg-brand-50 dark:bg-brand-950 border border-brand-200 dark:border-brand-800"
           >
-            {pdfFile ? 'Change PDF' : 'Select PDF'}
+            {pdfFile ? 'Change PDF' : 'Select PDF to Sign'}
           </button>
         </div>
 
         {pdfFile && (
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center space-x-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <div className="space-y-3.5 pt-2">
+            <div className="flex items-center space-x-2 text-xs font-bold text-slate-800 dark:text-slate-200">
               <FileText className="w-4 h-4 text-brand-500" />
               <span className="truncate">{pdfFile.name}</span>
             </div>
 
             {/* Position Sliders */}
-            <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400 pt-1">
+            <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
               <div>
                 <div className="flex justify-between mb-1">
-                  <span>Horizontal Position (X)</span>
-                  <span className="font-bold">{xPos}%</span>
+                  <span>Horizontal (X Position)</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{xPos}%</span>
                 </div>
                 <input
                   type="range"
@@ -228,14 +267,14 @@ export const ESignTool: React.FC = () => {
                   max="80"
                   value={xPos}
                   onChange={(e) => setXPos(Number(e.target.value))}
-                  className="w-full accent-brand-500"
+                  className="w-full accent-purple-600"
                 />
               </div>
 
               <div>
                 <div className="flex justify-between mb-1">
-                  <span>Vertical Position (Y)</span>
-                  <span className="font-bold">{yPos}%</span>
+                  <span>Vertical (Y Position)</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{yPos}%</span>
                 </div>
                 <input
                   type="range"
@@ -243,14 +282,14 @@ export const ESignTool: React.FC = () => {
                   max="85"
                   value={yPos}
                   onChange={(e) => setYPos(Number(e.target.value))}
-                  className="w-full accent-brand-500"
+                  className="w-full accent-purple-600"
                 />
               </div>
 
               <div>
                 <div className="flex justify-between mb-1">
                   <span>Signature Size</span>
-                  <span className="font-bold">{sigWidth}%</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{sigWidth}%</span>
                 </div>
                 <input
                   type="range"
@@ -258,7 +297,7 @@ export const ESignTool: React.FC = () => {
                   max="50"
                   value={sigWidth}
                   onChange={(e) => setSigWidth(Number(e.target.value))}
-                  className="w-full accent-brand-500"
+                  className="w-full accent-purple-600"
                 />
               </div>
             </div>
@@ -267,7 +306,7 @@ export const ESignTool: React.FC = () => {
               type="button"
               disabled={!selectedSigDataUrl || isExporting}
               onClick={handleExportSignedPdf}
-              className="w-full h-12 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold text-xs shadow-soft flex items-center justify-center space-x-1.5 touch-press transition-all disabled:opacity-40"
+              className="w-full h-14 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs shadow-elevated flex items-center justify-center space-x-2 touch-press transition-all disabled:opacity-40 animate-shimmer"
             >
               <Download className="w-4 h-4" />
               <span>{t('tools.esign.exportPdf')}</span>

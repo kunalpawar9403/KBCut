@@ -1,6 +1,6 @@
 import React from 'react';
 import { useI18n, Language } from '../../i18n';
-import { Sun, Moon, ShieldCheck } from 'lucide-react';
+import { Sun, Moon, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface HeaderProps {
   theme: 'light' | 'dark';
@@ -16,41 +16,45 @@ export const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme, onNavigate
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full glass border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
+    <header className="sticky top-0 z-30 w-full glass border-b border-slate-200/80 dark:border-slate-800/80 transition-all duration-300">
       <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Brand */}
+        {/* Brand with Logo */}
         <button
           onClick={onNavigateHome}
-          className="flex items-center space-x-2.5 text-left focus:outline-none group"
+          className="flex items-center space-x-3 text-left focus:outline-none group"
         >
-          <img
-            src="/logo.png"
-            alt="KBCut Logo"
-            className="w-9 h-9 rounded-xl shadow-sm object-contain transition-transform group-hover:scale-105"
-          />
+          <div className="relative">
+            <div className="absolute -inset-1 bg-gradient-to-r from-brand-500 to-accent-500 rounded-2xl blur-sm opacity-40 group-hover:opacity-75 transition duration-300" />
+            <img
+              src="/logo.png"
+              alt="KBCut Logo"
+              className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md object-contain bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-700/70 transition-transform group-hover:scale-105"
+            />
+          </div>
           <div>
-            <div className="flex items-center space-x-1.5">
-              <span className="font-extrabold text-xl tracking-tight text-brand-500 dark:text-brand-400 font-sans">
+            <div className="flex items-center space-x-2">
+              <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-600 dark:from-brand-400 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent font-sans">
                 KBCut
               </span>
-              <span className="hidden sm:inline-flex items-center text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full bg-accent-100 text-accent-700 dark:bg-accent-950 dark:text-accent-400">
-                100% Private
+              <span className="hidden xs:inline-flex items-center space-x-1 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-accent-50 text-accent-700 dark:bg-accent-950/80 dark:text-accent-400 border border-accent-200/60 dark:border-accent-800/60">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-500 animate-pulse mr-1" />
+                Private
               </span>
             </div>
-            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 -mt-1 hidden xs:block">
+            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 -mt-0.5 hidden sm:block">
               {t('app.tagline')}
             </p>
           </div>
         </button>
 
-        {/* Controls */}
+        {/* Right Controls */}
         <div className="flex items-center space-x-2 sm:space-x-3">
-          {/* Privacy badge indicator */}
+          {/* Privacy badge indicator on tablet/desktop */}
           <div
             title={t('app.privacyBadge')}
-            className="hidden md:flex items-center space-x-1 text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/70 px-2.5 py-1.5 rounded-full"
+            className="hidden sm:flex items-center space-x-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-700/80 px-3 py-1.5 rounded-full shadow-sm"
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-accent-500" />
+            <ShieldCheck className="w-3.5 h-3.5 text-accent-500 shrink-0" />
             <span>On-Device Only</span>
           </div>
 
@@ -60,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme, onNavigate
               value={lang}
               aria-label="Language"
               onChange={handleLangChange}
-              className="appearance-none bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold py-1.5 pl-3 pr-7 rounded-full border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+              className="appearance-none bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-200 text-xs font-bold py-1.5 pl-3 pr-7 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer hover:border-brand-400 transition-colors"
             >
               <option value="en">English</option>
               <option value="mr">मराठी</option>
@@ -73,16 +77,16 @@ export const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme, onNavigate
             </div>
           </div>
 
-          {/* Theme Switcher */}
+          {/* Theme Switcher Button */}
           <button
             onClick={onToggleTheme}
             aria-label="Toggle theme"
-            className="p-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="p-2 rounded-full bg-white/90 dark:bg-slate-900/90 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-brand-400 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand-500 touch-press"
           >
             {theme === 'dark' ? (
               <Sun className="w-4 h-4 text-amber-400" />
             ) : (
-              <Moon className="w-4 h-4 text-slate-600" />
+              <Moon className="w-4 h-4 text-slate-700" />
             )}
           </button>
         </div>
