@@ -9,7 +9,6 @@ import {
   Home,
   Settings,
   ChevronDown,
-  Smartphone,
   Download,
 } from 'lucide-react';
 
@@ -157,24 +156,14 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </button>
 
-            {/* Download App — compact on tablet/mobile */}
+            {/* Download APK — mobile only (hidden on desktop, use Settings for APK) */}
             <button
               onClick={() => setShowDownloadModal(true)}
-              aria-label="Download KBCut Android App"
+              aria-label="Download KBCut Android APK"
               className="lg:hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-brand-500 to-accent-500 hover:from-brand-600 hover:to-accent-600 text-white font-extrabold text-[11px] shadow-sm hover:shadow-md transition-all touch-press"
             >
               <Download className="w-3.5 h-3.5" />
-              <span className="hidden xs:inline">App</span>
-            </button>
-
-            {/* Download App — full button on desktop */}
-            <button
-              onClick={() => setShowDownloadModal(true)}
-              aria-label="Download KBCut Android App APK"
-              className="hidden lg:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-brand-500 to-accent-500 hover:from-brand-600 hover:to-accent-600 text-white font-extrabold text-xs shadow-sm hover:shadow-md transition-all touch-press"
-            >
-              <Smartphone className="w-3.5 h-3.5" />
-              <span>Download App</span>
+              <span>APK</span>
             </button>
           </div>
 

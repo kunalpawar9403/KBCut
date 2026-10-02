@@ -10,11 +10,9 @@ import {
   FileCheck,
   Wrench,
   Globe2,
-  Download,
   Smartphone,
   Sparkles,
 } from 'lucide-react';
-import { getApkDownloadUrl } from '../../utils/formatters';
 
 interface FooterProps {
   onNavigateTab?: (tab: 'home' | 'tools' | 'history' | 'settings') => void;
@@ -192,11 +190,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateTab, onNavigateSeo }) 
 
           </div>
 
-          {/* Col 4: Trust & Android App Download (3 cols on desktop) */}
+          {/* Col 4: Trust & Privacy (3 cols on desktop) */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="font-extrabold text-[11px] uppercase tracking-wider text-slate-900 dark:text-white flex items-center space-x-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-              <span>Trust & Android App</span>
+              <span>Trust & Privacy</span>
             </h4>
             
             {/* Trust points list */}
@@ -215,33 +213,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateTab, onNavigateSeo }) 
               </div>
             </div>
 
-            {/* Android APK Download Card */}
-            <div className="pt-1.5">
-              <a
-                href={getApkDownloadUrl()}
-                download="kbcut-app.apk"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group block p-2.5 sm:p-3 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-brand-900 hover:from-slate-800 hover:to-brand-800 text-white shadow-sm hover:shadow-md transition-all border border-slate-700/60 touch-press"
-              >
-                <div className="flex items-center space-x-2.5">
-                  <div className="p-2 rounded-xl bg-brand-500/20 text-brand-300 border border-brand-400/30 group-hover:scale-105 transition-transform">
-                    <Download className="w-4 h-4 text-brand-300" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-1.5">
-                      <span className="text-xs font-black tracking-tight">Download Android App</span>
-                      <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-emerald-500/30 text-emerald-300 border border-emerald-400/30">
-                        7.2 MB
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-slate-300 truncate">
-                      Direct APK download • No login
-                    </p>
-                  </div>
-                </div>
-              </a>
-            </div>
           </div>
 
         </div>
