@@ -41,9 +41,9 @@ async function optimizeVectorPdfImages(
   isNoLimit: boolean
 ): Promise<Uint8Array | null> {
   try {
-    const directDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+    const directDoc = await PDFDocument.load(arrayBuffer.slice(0), { ignoreEncryption: true });
     const pdfjsDoc = await pdfjsLib.getDocument({
-      data: arrayBuffer,
+      data: new Uint8Array(arrayBuffer.slice(0)),
       useSystemFonts: true,
       stopAtErrors: false,
     }).promise;
@@ -60,52 +60,60 @@ async function optimizeVectorPdfImages(
         if (opList.fnArray[i] === pdfjsLib.OPS.paintImageXObject) {
           const imgName = opList.argsArray[i][0];
           await new Promise<void>((resolve) => {
-            page.objs.get(imgName, async (img: any) => {
-              try {
-                if (img && img.ref && !processedRefs.has(img.ref) && img.data && img.width >= 40 && img.height >= 40) {
-                  processedRefs.add(img.ref);
-                  const refNum = parseInt(img.ref.replace(/[^0-9]/g, ''), 10);
-                  if (isNaN(refNum)) return;
+            const timer = setTimeout(resolve, 2500);
+            try {
+              page.objs.get(imgName, async (img: any) => {
+                clearTimeout(timer);
+                try {
+                  if (img && img.ref && !processedRefs.has(img.ref) && img.data && img.width >= 40 && img.height >= 40) {
+                    processedRefs.add(img.ref);
+                    const refNum = parseInt(img.ref.replace(/[^0-9]/g, ''), 10);
+                    if (isNaN(refNum)) return;
 
-                  const pdfObj: any = directDoc.context.lookup(PDFRef.of(refNum, 0));
-                  if (!pdfObj || !pdfObj.dict) return;
+                    const pdfObj: any = directDoc.context.lookup(PDFRef.of(refNum, 0));
+                    if (!pdfObj || !pdfObj.dict) return;
 
-                  const currentLen = pdfObj.contents?.length || 0;
-                  // Only recompress if stream is non-trivial (> 8KB or uncompressed Flate)
-                  if (currentLen < 8192) return;
+                    const currentLen = pdfObj.contents?.length || 0;
+                    if (currentLen < 8192) return;
 
-                  let rgbaData: Uint8ClampedArray;
-                  if (img.kind === 3 && img.data.length === img.width * img.height * 4) {
-                    rgbaData = new Uint8ClampedArray(img.data);
-                  } else if (img.kind === 2 && img.data.length === img.width * img.height * 3) {
-                    rgbaData = new Uint8ClampedArray(img.width * img.height * 4);
-                    for (let s = 0, d = 0; s < img.data.length; s += 3, d += 4) {
-                      rgbaData[d] = img.data[s];
-                      rgbaData[d + 1] = img.data[s + 1];
-                      rgbaData[d + 2] = img.data[s + 2];
-                      rgbaData[d + 3] = 255;
+                    let rgbaData: Uint8ClampedArray;
+                    if (img.kind === 3 && img.data.length === img.width * img.height * 4) {
+                      rgbaData = new Uint8ClampedArray(img.data);
+                    } else if (img.kind === 2 && img.data.length === img.width * img.height * 3) {
+                      rgbaData = new Uint8ClampedArray(img.width * img.height * 4);
+                      for (let s = 0, d = 0; s < img.data.length; s += 3, d += 4) {
+                        rgbaData[d] = img.data[s];
+                        rgbaData[d + 1] = img.data[s + 1];
+                        rgbaData[d + 2] = img.data[s + 2];
+                        rgbaData[d + 3] = 255;
+                      }
+                    } else {
+                      return;
                     }
-                  } else {
-                    return;
-                  }
 
-                  const clamped = new Uint8ClampedArray(rgbaData.buffer.slice(0));
-                  const imgData = new ImageData(clamped as any, img.width, img.height);
-                  const jpegBlob = await mozjpegEncode(imgData, 75);
-                  if (jpegBlob.size < currentLen * 0.9) {
-                    const jpegBytes = new Uint8Array(await jpegBlob.arrayBuffer());
-                    pdfObj.contents = jpegBytes;
-                    pdfObj.dict.set(PDFName.of('Filter'), PDFName.of('DCTDecode'));
-                    pdfObj.dict.set(PDFName.of('Length'), PDFNumber.of(jpegBytes.length));
-                    pdfObj.dict.set(PDFName.of('ColorSpace'), PDFName.of('DeviceRGB'));
-                    pdfObj.dict.set(PDFName.of('BitsPerComponent'), PDFNumber.of(8));
-                    recompressedCount++;
+                    const clamped = new Uint8ClampedArray(rgbaData.buffer.slice(0));
+                    const imgData = new ImageData(clamped as any, img.width, img.height);
+                    const jpegBlob = await mozjpegEncode(imgData, 75);
+                    if (jpegBlob.size < currentLen * 0.9) {
+                      const jpegBytes = new Uint8Array(await jpegBlob.arrayBuffer());
+                      pdfObj.contents = jpegBytes;
+                      pdfObj.dict.set(PDFName.of('Filter'), PDFName.of('DCTDecode'));
+                      pdfObj.dict.set(PDFName.of('Length'), PDFNumber.of(jpegBytes.length));
+                      pdfObj.dict.set(PDFName.of('ColorSpace'), PDFName.of('DeviceRGB'));
+                      pdfObj.dict.set(PDFName.of('BitsPerComponent'), PDFNumber.of(8));
+                      recompressedCount++;
+                    }
                   }
+                } catch {
+                  // Ignore error for this individual image
+                } finally {
+                  resolve();
                 }
-              } finally {
-                resolve();
-              }
-            });
+              });
+            } catch {
+              clearTimeout(timer);
+              resolve();
+            }
           });
         }
       }
@@ -162,16 +170,18 @@ export async function compressPdf(
   const isNoLimit = !options.targetKb || options.targetKb <= 0;
   const targetBytes = (options.targetKb || 0) * 1024;
 
-  let arrayBuffer: ArrayBuffer;
-  try {
-    arrayBuffer = await file.arrayBuffer();
-  } catch {
-    throw new PdfError('CORRUPT_FILE', 'Failed to read file buffer');
-  }
+  let cachedBuffer: ArrayBuffer | null = null;
+  const getArrayBuffer = async (): Promise<ArrayBuffer> => {
+    if (cachedBuffer && cachedBuffer.byteLength > 0) {
+      return cachedBuffer.slice(0);
+    }
+    cachedBuffer = await file.arrayBuffer();
+    return cachedBuffer.slice(0);
+  };
 
   // Phase 0: QPDF WebAssembly Optimization (preserves 100% vector fonts, streams, and linearizes)
   try {
-    const qpdfBytes = await optimizePdfWithQpdf(arrayBuffer);
+    const qpdfBytes = await optimizePdfWithQpdf(await getArrayBuffer());
     if (qpdfBytes && (isNoLimit || qpdfBytes.length <= targetBytes)) {
       const qpdfBlob = new Blob([qpdfBytes as unknown as BlobPart], { type: 'application/pdf' });
       let pages = 1;
@@ -197,7 +207,7 @@ export async function compressPdf(
 
   // Phase 1: In-Place Embedded Image Optimization (100% Vector Preservation)
   try {
-    const vectorBytes = await optimizeVectorPdfImages(arrayBuffer, targetBytes, isNoLimit);
+    const vectorBytes = await optimizeVectorPdfImages(await getArrayBuffer(), targetBytes, isNoLimit);
     if (vectorBytes && (isNoLimit || vectorBytes.length <= targetBytes)) {
       const vectorBlob = new Blob([vectorBytes as unknown as BlobPart], { type: 'application/pdf' });
       let pages = 1;
@@ -223,7 +233,7 @@ export async function compressPdf(
 
   // Phase 2: Lossless Vector Metadata Stripping
   try {
-    const directDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+    const directDoc = await PDFDocument.load(await getArrayBuffer(), { ignoreEncryption: true });
     directDoc.setTitle('');
     directDoc.setAuthor('');
     directDoc.setSubject('');
@@ -254,8 +264,9 @@ export async function compressPdf(
   // Phase 3: Adaptive High-Clarity Document Rasterization (Fallback for scanned pages / extreme budgets)
   let pdfDoc: pdfjsLib.PDFDocumentProxy;
   try {
+    const freshBuffer = await getArrayBuffer();
     const loadingTask = pdfjsLib.getDocument({
-      data: arrayBuffer,
+      data: new Uint8Array(freshBuffer),
       useSystemFonts: true,
       stopAtErrors: false,
     });

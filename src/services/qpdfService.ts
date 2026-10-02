@@ -27,6 +27,8 @@ export async function optimizePdfWithQpdf(
     const qpdf = await load();
 
     try {
+      // Clone buffer so QPDF worker transfer list does not detach caller's buffer!
+      const clonedData = inputBuffer.slice(0);
       const result = await qpdf.exec(
         [
           '/input.pdf',
@@ -37,7 +39,7 @@ export async function optimizePdfWithQpdf(
           '--compression-level=9',
         ],
         {
-          files: [{ name: '/input.pdf', data: inputBuffer }],
+          files: [{ name: '/input.pdf', data: clonedData }],
           outputs: ['/output.pdf'],
           timeoutMs: 15000,
         }
