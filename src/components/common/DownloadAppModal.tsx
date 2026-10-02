@@ -6,11 +6,13 @@ import {
   Smartphone,
   ShieldCheck,
   Share2,
-  Plus,
+  Download,
   Wifi,
   Zap,
   CheckCircle2,
+  Lock,
 } from 'lucide-react';
+import { getApkDownloadUrl } from '../../utils/formatters';
 
 interface DownloadAppModalProps {
   isOpen: boolean;
@@ -19,6 +21,18 @@ interface DownloadAppModalProps {
 
 export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
+
+  const handleApkDownload = () => {
+    const url = getApkDownloadUrl();
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'kbcut-app.apk';
+    anchor.target = '_blank';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    toast.success('KBCut APK download started! (7.2 MB)');
+  };
 
   const handlePwaInstall = async () => {
     const accepted = await pwaService.promptInstall();
@@ -65,7 +79,7 @@ export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({ isOpen, onCl
             <X className="w-4 h-4" />
           </button>
 
-          {/* Logo + title row */}
+          {/* Logo + title */}
           <div className="flex items-center gap-3.5">
             <div className="relative">
               <div className="absolute -inset-1 bg-white/30 rounded-2xl blur-sm" />
@@ -82,23 +96,20 @@ export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({ isOpen, onCl
                   v1.0
                 </span>
               </div>
-              <p className="text-xs text-brand-100 font-medium mt-0.5">
-                Photo &amp; PDF Size Reducer
-              </p>
+              <p className="text-xs text-brand-100 font-medium mt-0.5">Android App • 7.2 MB</p>
             </div>
           </div>
 
-          {/* Tag line */}
           <p className="mt-4 text-sm text-white/90 font-semibold leading-snug">
-            Add KBCut to your home screen — works completely offline, no install required.
+            Install KBCut directly on your Android phone. No Play Store needed — 100% offline.
           </p>
 
           {/* Feature pills */}
           <div className="flex flex-wrap gap-2 mt-3">
             {[
-              { icon: <Wifi className="w-3 h-3" />, label: 'Works Offline' },
-              { icon: <Zap className="w-3 h-3" />, label: 'Instant Launch' },
-              { icon: <ShieldCheck className="w-3 h-3" />, label: '0 MB Storage' },
+              { icon: <Wifi className="w-3 h-3" />, label: '100% Offline' },
+              { icon: <Zap className="w-3 h-3" />, label: 'Android 8.0+' },
+              { icon: <Lock className="w-3 h-3" />, label: 'No Login' },
             ].map((pill) => (
               <span
                 key={pill.label}
@@ -111,16 +122,15 @@ export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({ isOpen, onCl
           </div>
         </div>
 
-        {/* ── Overlap card ── */}
+        {/* ── Install steps card ── */}
         <div className="relative -mt-5 mx-4 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 p-4 space-y-3">
           <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            How to install
+            How to install APK
           </p>
-
           {[
-            { num: '1', text: 'Tap the browser menu', sub: '(⋮ on Android · Share ↑ on iPhone)' },
-            { num: '2', text: 'Select "Add to Home Screen"', sub: 'Find it in the menu list' },
-            { num: '3', text: 'Tap "Add" to confirm', sub: 'Opens instantly like a native app' },
+            { num: '1', text: 'Tap "Download APK" below', sub: 'File size: 7.2 MB' },
+            { num: '2', text: 'Tap "Download anyway"', sub: 'If Chrome shows a warning — it\'s safe' },
+            { num: '3', text: 'Open file & tap Install', sub: 'From your Downloads folder or notification' },
           ].map((step) => (
             <div key={step.num} className="flex items-start gap-3">
               <span className="w-6 h-6 rounded-full bg-brand-500 text-white text-[11px] font-black flex items-center justify-center shrink-0 mt-0.5">
@@ -136,33 +146,43 @@ export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({ isOpen, onCl
 
         {/* ── Actions ── */}
         <div className="px-4 pt-3 pb-5 space-y-2.5">
-          {/* Primary CTA */}
+
+          {/* Primary CTA — APK Download */}
           <button
-            onClick={handlePwaInstall}
+            onClick={handleApkDownload}
             className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 active:scale-[0.98] text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-brand-500/25 transition-all touch-press"
           >
-            <Plus className="w-4 h-4" />
-            <span>Add to Home Screen</span>
+            <Download className="w-4 h-4" />
+            <span>Download APK (7.2 MB)</span>
           </button>
 
-          {/* Share link */}
+          {/* Secondary — Add to Home Screen (PWA) */}
           <button
-            onClick={handleShare}
+            onClick={handlePwaInstall}
             className="w-full py-2.5 px-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center gap-2 transition-all touch-press"
           >
-            <Share2 className="w-3.5 h-3.5" />
-            <span>Share App Link</span>
+            <Smartphone className="w-3.5 h-3.5 text-brand-500" />
+            <span>Add to Home Screen (PWA)</span>
           </button>
 
-          {/* Privacy note */}
-          <div className="flex items-center justify-center gap-1.5 pt-0.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
-              100% private · No account · No cloud uploads
-            </span>
+          {/* Share + privacy */}
+          <div className="flex items-center justify-between pt-0.5">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+                No cloud · 100% private
+              </span>
+            </div>
+            <button
+              onClick={handleShare}
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-600 dark:text-brand-400 hover:underline touch-press"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>Share</span>
+            </button>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
   );
