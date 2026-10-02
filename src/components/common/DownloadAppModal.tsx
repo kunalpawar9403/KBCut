@@ -20,6 +20,17 @@ interface DownloadAppModalProps {
 }
 
 export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({ isOpen, onClose }) => {
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleApkDownload = () => {
@@ -150,6 +161,7 @@ export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({ isOpen, onCl
           {/* Primary CTA — APK Download */}
           <button
             onClick={handleApkDownload}
+            aria-label="Download KBCut APK Package"
             className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 active:scale-[0.98] text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-brand-500/25 transition-all touch-press"
           >
             <Download className="w-4 h-4" />

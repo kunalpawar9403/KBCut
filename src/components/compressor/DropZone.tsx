@@ -90,11 +90,7 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFileSelected, onPresetClic
         </div>
 
         <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug sm:leading-tight">
-          Make your file{' '}
-          <span className="bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-600 dark:from-brand-400 dark:to-indigo-300 bg-clip-text text-transparent">
-            under the size limit
-          </span>{' '}
-          in one tap
+          {t('app.homeHeadline')}
         </h1>
 
         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2 max-w-md mx-auto leading-relaxed">

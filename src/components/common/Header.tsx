@@ -27,7 +27,7 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateTab,
   onNavigateHome,
 }) => {
-  const { lang, setLang } = useI18n();
+  const { t, lang, setLang } = useI18n();
   const [showDownloadModal, setShowDownloadModal] = useState(false);
 
   const handleLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -51,10 +51,10 @@ export const Header: React.FC<HeaderProps> = ({
     icon: React.ElementType;
     badge?: string;
   }[] = [
-    { label: 'Home', tab: 'home', icon: Home },
-    { label: 'Exam Tools', tab: 'tools', icon: Wrench, badge: '6' },
-    { label: 'History', tab: 'history', icon: Clock },
-    { label: 'Settings', tab: 'settings', icon: Settings },
+    { label: t('nav.home'), tab: 'home', icon: Home },
+    { label: t('nav.tools'), tab: 'tools', icon: Wrench, badge: '6' },
+    { label: t('nav.history'), tab: 'history', icon: Clock },
+    { label: t('nav.settings'), tab: 'settings', icon: Settings },
   ];
 
   return (
@@ -126,13 +126,13 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Right: Controls */}
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
 
-            {/* Language Switcher — hidden on smallest screens */}
-            <div className="relative hidden sm:block">
+            {/* Language Switcher — accessible on mobile & desktop */}
+            <div className="relative">
               <select
                 value={lang}
                 aria-label="Language"
                 onChange={handleLangChange}
-                className="appearance-none bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-200 text-xs font-bold py-1.5 pl-2.5 pr-5 rounded-lg border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer hover:border-brand-400 transition-colors"
+                className="appearance-none bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-200 text-[11px] sm:text-xs font-bold py-1 sm:py-1.5 pl-2 sm:pl-2.5 pr-4 sm:pr-5 rounded-lg border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer hover:border-brand-400 transition-colors"
               >
                 <option value="en">EN</option>
                 <option value="mr">MR</option>

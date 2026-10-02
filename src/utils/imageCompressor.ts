@@ -49,11 +49,23 @@ export async function loadImageElement(source: Blob | File): Promise<HTMLImageEl
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
-      URL.revokeObjectURL(url);
+      setTimeout(() => {
+        try {
+          URL.revokeObjectURL(url);
+        } catch {
+          // Safe ignore
+        }
+      }, 2000);
       resolve(img);
     };
     img.onerror = () => {
-      URL.revokeObjectURL(url);
+      setTimeout(() => {
+        try {
+          URL.revokeObjectURL(url);
+        } catch {
+          // Safe ignore
+        }
+      }, 2000);
       reject(new Error('IMAGE_LOAD_FAILED'));
     };
     img.src = url;

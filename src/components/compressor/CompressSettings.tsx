@@ -110,7 +110,7 @@ export const CompressSettings: React.FC<CompressSettingsProps> = ({
 
   // Load preview and natural dimensions on mount
   useEffect(() => {
-    if (!isPdf) {
+    if (!isPdf && file) {
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
 
@@ -126,9 +126,11 @@ export const CompressSettings: React.FC<CompressSettingsProps> = ({
       };
       img.src = url;
 
-      return () => URL.revokeObjectURL(url);
+      return () => {
+        URL.revokeObjectURL(url);
+      };
     }
-  }, [file, isPdf, initialPreset]);
+  }, [file, isPdf]);
 
   // Derived resolved pixel dimensions
   const numW = parseFloat(widthInput) || 0;
