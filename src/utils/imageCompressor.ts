@@ -219,14 +219,15 @@ export async function compressImage(
   let bestWidth = currentWidth;
   let bestHeight = currentHeight;
 
-  const MAX_DOWNSCALE_STEPS = 12;
-  const MIN_DIMENSION = 40;
+  const hasExplicitDimensions = Boolean(options.targetWidth && options.targetHeight);
+  const MAX_DOWNSCALE_STEPS = hasExplicitDimensions ? 1 : 10;
+  const MIN_DIMENSION = 200;
 
   for (let step = 0; step < MAX_DOWNSCALE_STEPS; step++) {
     const canvas = drawToCanvas(img, currentWidth, currentHeight, options.cropRect);
 
     let high = 0.96;
-    let low = 0.10;
+    let low = 0.35; // Clarity floor: prevent extreme compression blur
     let stepBestBlob: Blob | null = null;
     let stepBestQuality = low;
 
@@ -256,11 +257,11 @@ export async function compressImage(
       break;
     }
 
-    // Try lowest acceptable quality on this resolution
-    const lowestBlob = await canvasToBlob(canvas, mime, 0.10);
+    // Try lowest acceptable quality (0.30) on this resolution
+    const lowestBlob = await canvasToBlob(canvas, mime, 0.30);
     if (lowestBlob.size <= targetBytes) {
       bestBlob = lowestBlob;
-      bestQuality = 0.10;
+      bestQuality = 0.30;
       bestWidth = currentWidth;
       bestHeight = currentHeight;
       break;
@@ -268,13 +269,16 @@ export async function compressImage(
 
     if (!bestBlob || lowestBlob.size < bestBlob.size) {
       bestBlob = lowestBlob;
-      bestQuality = 0.10;
+      bestQuality = 0.30;
       bestWidth = currentWidth;
       bestHeight = currentHeight;
     }
 
-    // If target width and height were explicitly locked by user and step > 4,
-    // don't aggressively reduce dimensions if they asked for exact fixed dimensions
+    // If explicit target dimensions were specified by user, do NOT downscale dimensions
+    if (hasExplicitDimensions) {
+      break;
+    }
+
     if (currentWidth * 0.9 < MIN_DIMENSION || currentHeight * 0.9 < MIN_DIMENSION) {
       break;
     }

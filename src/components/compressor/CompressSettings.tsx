@@ -22,7 +22,6 @@ import {
   Unlink,
   Crop,
   AlertTriangle,
-  Info,
   CheckCircle2,
   FileImage,
   Layers,
