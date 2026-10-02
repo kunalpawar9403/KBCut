@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useI18n } from '../../i18n';
 import { UnifiedCompressResult } from '../../services/compressionService';
 import { platformService } from '../../services/platform';
@@ -13,9 +13,6 @@ import {
   RotateCcw,
   Sparkles,
   FileText,
-  Copy,
-  ArrowRight,
-  ShieldCheck,
 } from 'lucide-react';
 
 interface ResultViewProps {
@@ -24,9 +21,8 @@ interface ResultViewProps {
   onNavigateTools?: () => void;
 }
 
-export const ResultView: React.FC<ResultViewProps> = ({ result, onReset, onNavigateTools }) => {
+export const ResultView: React.FC<ResultViewProps> = ({ result, onReset }) => {
   const { t } = useI18n();
-  const [sliderPos, setSliderPos] = useState(50); // percentage for comparison slider
 
   useEffect(() => {
     if (result.reachedTarget) {
@@ -74,7 +70,26 @@ export const ResultView: React.FC<ResultViewProps> = ({ result, onReset, onNavig
   return (
     <div className="w-full max-w-xl mx-auto space-y-5 animate-in zoom-in-95 duration-300">
       {/* Target Status Banner */}
-      {result.reachedTarget ? (
+      {result.targetKb <= 0 ? (
+        <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-accent-500/10 via-emerald-500/10 to-teal-500/10 border-2 border-accent-500/40 dark:border-accent-500/50 text-accent-950 dark:text-accent-100 flex items-center space-x-3.5 shadow-soft">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-accent-600 to-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-accent-500/30">
+            <CheckCircle2 className="w-7 h-7" />
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <h4 className="font-black text-base sm:text-lg text-slate-900 dark:text-white">
+                Resized Successfully
+              </h4>
+              <span className="px-2 py-0.5 rounded-full bg-accent-500 text-white font-black text-[10px] uppercase tracking-wider">
+                Full Quality
+              </span>
+            </div>
+            <p className="text-xs text-accent-800 dark:text-accent-300 mt-0.5 font-medium">
+              Image resized to exact dimensions with zero compression loss.
+            </p>
+          </div>
+        </div>
+      ) : result.reachedTarget ? (
         <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-accent-500/10 via-emerald-500/10 to-teal-500/10 border-2 border-accent-500/40 dark:border-accent-500/50 text-accent-950 dark:text-accent-100 flex items-center space-x-3.5 shadow-soft">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-accent-600 to-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-accent-500/30">
             <CheckCircle2 className="w-7 h-7" />
@@ -168,6 +183,26 @@ export const ResultView: React.FC<ResultViewProps> = ({ result, onReset, onNavig
             </div>
           )}
         </div>
+
+        {result.type === 'image' && result.width && result.height && (
+          <div className="w-full mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs px-1">
+            <span className="text-slate-500 dark:text-slate-400 font-semibold">
+              Dimensions: <strong className="text-slate-900 dark:text-white">{result.width} × {result.height} px</strong>
+            </span>
+            <div className="flex items-center gap-1.5">
+              {result.dpi && (
+                <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-600 dark:text-slate-300">
+                  {result.dpi} DPI
+                </span>
+              )}
+              {result.format && (
+                <span className="px-2 py-0.5 rounded-md bg-brand-50 dark:bg-brand-950 text-[10px] font-extrabold text-brand-600 dark:text-brand-400">
+                  {result.format}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Primary Action Buttons (Min 56px height) */}

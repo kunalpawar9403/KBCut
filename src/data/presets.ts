@@ -9,11 +9,44 @@ export interface ExamPreset {
   aspectRatio?: string; // e.g. "3.5:4.5", "140:60"
   badge?: string;
   category: 'exam' | 'id' | 'general';
+  recommendedFormat?: 'image/jpeg' | 'image/png' | 'image/webp';
+  unit?: 'px' | 'cm' | 'mm';
+  dpi?: number;
 }
 
 export const TARGET_SIZE_OPTIONS = [20, 50, 100, 200] as const;
 
 export const EXAM_PRESETS: ExamPreset[] = [
+  {
+    id: 'sbi-clerk-photo',
+    name: 'SBI Clerk / PO Photo',
+    description: 'SBI Clerk, PO & Associate photo specification (20–50 KB)',
+    targetKb: 50,
+    type: 'image',
+    width: 200,
+    height: 230,
+    aspectRatio: '200:230',
+    badge: '20–50 KB',
+    category: 'exam',
+    recommendedFormat: 'image/jpeg',
+    unit: 'px',
+    dpi: 300,
+  },
+  {
+    id: 'sbi-clerk-sign',
+    name: 'SBI Clerk Signature',
+    description: 'SBI Clerk & Banking signature specification (10–20 KB)',
+    targetKb: 20,
+    type: 'image',
+    width: 140,
+    height: 60,
+    aspectRatio: '140:60',
+    badge: '10–20 KB',
+    category: 'exam',
+    recommendedFormat: 'image/jpeg',
+    unit: 'px',
+    dpi: 300,
+  },
   {
     id: 'ssc-photo',
     name: 'SSC Photo',
@@ -24,7 +57,10 @@ export const EXAM_PRESETS: ExamPreset[] = [
     height: 230,
     aspectRatio: '3.5:4.5',
     badge: '< 50 KB',
-    category: 'exam'
+    category: 'exam',
+    recommendedFormat: 'image/jpeg',
+    unit: 'px',
+    dpi: 300,
   },
   {
     id: 'signature-std',
@@ -36,19 +72,25 @@ export const EXAM_PRESETS: ExamPreset[] = [
     height: 60,
     aspectRatio: '140:60',
     badge: '140x60 px',
-    category: 'exam'
+    category: 'exam',
+    recommendedFormat: 'image/jpeg',
+    unit: 'px',
+    dpi: 300,
   },
   {
     id: 'passport-photo',
-    name: 'Passport Photo',
-    description: '35x45 mm official passport photo standards',
+    name: 'Passport Photo (35×45 mm)',
+    description: '35x45 mm official passport photo standards (at 300 DPI)',
     targetKb: 100,
     type: 'image',
     width: 413,
     height: 531,
     aspectRatio: '35:45',
-    badge: '< 100 KB',
-    category: 'id'
+    badge: '35×45 mm',
+    category: 'id',
+    recommendedFormat: 'image/jpeg',
+    unit: 'mm',
+    dpi: 300,
   },
   {
     id: 'aadhaar-doc',
@@ -57,7 +99,8 @@ export const EXAM_PRESETS: ExamPreset[] = [
     targetKb: 200,
     type: 'both',
     badge: '< 200 KB',
-    category: 'id'
+    category: 'id',
+    recommendedFormat: 'image/jpeg',
   },
   {
     id: 'upsc-photo',
@@ -69,7 +112,10 @@ export const EXAM_PRESETS: ExamPreset[] = [
     height: 350,
     aspectRatio: '1:1',
     badge: '< 300 KB',
-    category: 'exam'
+    category: 'exam',
+    recommendedFormat: 'image/jpeg',
+    unit: 'px',
+    dpi: 300,
   },
   {
     id: 'ibps-photo',
@@ -81,7 +127,10 @@ export const EXAM_PRESETS: ExamPreset[] = [
     height: 230,
     aspectRatio: '200:230',
     badge: '< 50 KB',
-    category: 'exam'
+    category: 'exam',
+    recommendedFormat: 'image/jpeg',
+    unit: 'px',
+    dpi: 300,
   },
   {
     id: 'jee-gate-photo',
@@ -93,7 +142,10 @@ export const EXAM_PRESETS: ExamPreset[] = [
     height: 640,
     aspectRatio: '3.5:4.5',
     badge: '< 200 KB',
-    category: 'exam'
+    category: 'exam',
+    recommendedFormat: 'image/jpeg',
+    unit: 'px',
+    dpi: 300,
   },
   {
     id: 'mpsc-photo',
@@ -105,8 +157,11 @@ export const EXAM_PRESETS: ExamPreset[] = [
     height: 213,
     aspectRatio: '3:4',
     badge: '< 50 KB',
-    category: 'exam'
-  }
+    category: 'exam',
+    recommendedFormat: 'image/jpeg',
+    unit: 'px',
+    dpi: 300,
+  },
 ];
 
 export function getPresetById(id: string): ExamPreset | undefined {

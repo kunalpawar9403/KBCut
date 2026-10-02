@@ -3,18 +3,27 @@
  * 
  * Rules:
  * 1. Correct EXIF orientation.
- * 2. Resize to preset dimensions if specified.
- * 3. Binary search JPEG quality (0.95 down to 0.10) to land just under target.
- * 4. Downscale dimensions by 10% iteratively if quality alone is not sufficient.
- * 5. NEVER exceed target size if possible.
+ * 2. Resize to custom or preset dimensions (PX, CM, MM at specified DPI).
+ * 3. Binary search JPEG quality (0.95 down to 0.10) to land strictly under target KB.
+ * 4. Downscale dimensions iteratively if quality alone is not sufficient.
+ * 5. Handle No-Limit target mode (lossless or 0.95 visual fidelity).
+ * 6. Center-crop framing so aspect ratio changes do not distort/squash photos.
  */
 
+export interface ImageCropRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface ImageCompressOptions {
-  targetKb: number;
+  targetKb?: number; // 0 or undefined for No Limit
   targetWidth?: number;
   targetHeight?: number;
   maintainAspectRatio?: boolean;
   mimeType?: 'image/jpeg' | 'image/webp' | 'image/png';
+  cropRect?: ImageCropRect;
 }
 
 export interface CompressResult {
@@ -30,7 +39,7 @@ export interface CompressResult {
 }
 
 /**
- * Loads an image File or Blob into an HTMLImageElement or ImageBitmap
+ * Loads an image File or Blob into an HTMLImageElement
  */
 export async function loadImageElement(source: Blob | File): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -73,12 +82,13 @@ export function canvasToBlob(
 }
 
 /**
- * Creates a canvas and draws the image at specified dimensions
+ * Creates a canvas and draws the image at specified dimensions with center-crop framing
  */
 export function drawToCanvas(
   img: HTMLImageElement | ImageBitmap,
   targetWidth: number,
-  targetHeight: number
+  targetHeight: number,
+  cropRect?: ImageCropRect
 ): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
   canvas.width = Math.max(1, Math.round(targetWidth));
@@ -93,7 +103,45 @@ export function drawToCanvas(
   // High quality interpolation
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  if (cropRect) {
+    ctx.drawImage(
+      img,
+      cropRect.x,
+      cropRect.y,
+      cropRect.width,
+      cropRect.height,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+  } else {
+    // Smart center-crop to prevent image squashing/stretching
+    const srcW = 'naturalWidth' in img ? img.naturalWidth : img.width;
+    const srcH = 'naturalHeight' in img ? img.naturalHeight : img.height;
+    const targetRatio = canvas.width / canvas.height;
+    const srcRatio = srcW / srcH;
+
+    let sx = 0;
+    let sy = 0;
+    let sw = srcW;
+    let sh = srcH;
+
+    if (Math.abs(targetRatio - srcRatio) > 0.02) {
+      if (srcRatio > targetRatio) {
+        // Image is wider than target: crop left & right
+        sw = Math.round(srcH * targetRatio);
+        sx = Math.round((srcW - sw) / 2);
+      } else {
+        // Image is taller than target: crop top & bottom
+        sh = Math.round(srcW / targetRatio);
+        sy = Math.round((srcH - sh) / 2);
+      }
+    }
+
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+  }
 
   return canvas;
 }
@@ -106,7 +154,9 @@ export async function compressImage(
   options: ImageCompressOptions
 ): Promise<CompressResult> {
   const originalSize = file.size;
-  const targetBytes = options.targetKb * 1024;
+  const isNoLimit = !options.targetKb || options.targetKb <= 0;
+  const targetBytes = (options.targetKb || 0) * 1024;
+  const mime = options.mimeType || 'image/jpeg';
 
   const img = await loadImageElement(file);
   let srcWidth = img.naturalWidth || img.width;
@@ -116,7 +166,7 @@ export async function compressImage(
     throw new Error('INVALID_IMAGE_DIMENSIONS');
   }
 
-  // Determine starting dimensions
+  // Determine starting target dimensions
   let currentWidth = srcWidth;
   let currentHeight = srcHeight;
 
@@ -126,7 +176,6 @@ export async function compressImage(
       currentWidth = Math.round(srcWidth * ratio);
       currentHeight = Math.round(srcHeight * ratio);
     } else {
-      // Exact preset dimensions (e.g. 140x60 for signature or 200x230 for SSC)
       currentWidth = options.targetWidth;
       currentHeight = options.targetHeight;
     }
@@ -140,29 +189,43 @@ export async function compressImage(
     currentWidth = Math.round(srcWidth * ratio);
   }
 
-  // Cap initial extreme sizes (e.g. 48MP phone cameras) to standard maximum display size
-  const maxInitialDim = 2400;
-  if (currentWidth > maxInitialDim || currentHeight > maxInitialDim) {
+  // Cap initial extreme sizes (e.g. 64MP mobile cameras) if no specific target width set
+  const maxInitialDim = 2800;
+  if ((!options.targetWidth || !options.targetHeight) && (currentWidth > maxInitialDim || currentHeight > maxInitialDim)) {
     const scale = maxInitialDim / Math.max(currentWidth, currentHeight);
     currentWidth = Math.round(currentWidth * scale);
     currentHeight = Math.round(currentHeight * scale);
   }
 
+  // 1. If NO LIMIT mode: output high-quality canvas directly
+  if (isNoLimit) {
+    const canvas = drawToCanvas(img, currentWidth, currentHeight, options.cropRect);
+    const blob = await canvasToBlob(canvas, mime, 0.95);
+    return {
+      blob,
+      originalSize,
+      compressedSize: blob.size,
+      targetKb: 0,
+      width: currentWidth,
+      height: currentHeight,
+      quality: 0.95,
+      reachedTarget: true,
+    };
+  }
+
+  // 2. Binary search + quality optimization loop to stay strictly under target KB
   let bestBlob: Blob | null = null;
-  let bestQuality = 0.8;
+  let bestQuality = 0.85;
   let bestWidth = currentWidth;
   let bestHeight = currentHeight;
-  const mime = options.mimeType || 'image/jpeg';
 
-  // Iterative downscaling loop if binary quality search alone is not enough
-  const MAX_DOWNSCALE_STEPS = 12; // 10% steps
+  const MAX_DOWNSCALE_STEPS = 12;
   const MIN_DIMENSION = 40;
 
   for (let step = 0; step < MAX_DOWNSCALE_STEPS; step++) {
-    const canvas = drawToCanvas(img, currentWidth, currentHeight);
+    const canvas = drawToCanvas(img, currentWidth, currentHeight, options.cropRect);
 
-    // First check high quality
-    let high = 0.95;
+    let high = 0.96;
     let low = 0.10;
     let stepBestBlob: Blob | null = null;
     let stepBestQuality = low;
@@ -173,16 +236,14 @@ export async function compressImage(
       const blob = await canvasToBlob(canvas, mime, mid);
 
       if (blob.size <= targetBytes) {
-        // Fits under target! Keep this candidate and try higher quality
         stepBestBlob = blob;
         stepBestQuality = mid;
         low = mid;
       } else {
-        // Exceeds target! Lower quality
         high = mid;
       }
 
-      if (high - low < 0.04) {
+      if (high - low < 0.035) {
         break;
       }
     }
@@ -192,10 +253,10 @@ export async function compressImage(
       bestQuality = stepBestQuality;
       bestWidth = currentWidth;
       bestHeight = currentHeight;
-      break; // Success! Under target limit
+      break;
     }
 
-    // Try at lowest acceptable quality on this canvas
+    // Try lowest acceptable quality on this resolution
     const lowestBlob = await canvasToBlob(canvas, mime, 0.10);
     if (lowestBlob.size <= targetBytes) {
       bestBlob = lowestBlob;
@@ -205,7 +266,6 @@ export async function compressImage(
       break;
     }
 
-    // If still over target, retain lowest as fallback candidate
     if (!bestBlob || lowestBlob.size < bestBlob.size) {
       bestBlob = lowestBlob;
       bestQuality = 0.10;
@@ -213,16 +273,17 @@ export async function compressImage(
       bestHeight = currentHeight;
     }
 
-    // Downscale dimensions by 10% for next pass
+    // If target width and height were explicitly locked by user and step > 4,
+    // don't aggressively reduce dimensions if they asked for exact fixed dimensions
     if (currentWidth * 0.9 < MIN_DIMENSION || currentHeight * 0.9 < MIN_DIMENSION) {
-      break; // Avoid reducing to non-visible icon
+      break;
     }
     currentWidth = Math.round(currentWidth * 0.9);
     currentHeight = Math.round(currentHeight * 0.9);
   }
 
   if (!bestBlob) {
-    const fallbackCanvas = drawToCanvas(img, currentWidth, currentHeight);
+    const fallbackCanvas = drawToCanvas(img, currentWidth, currentHeight, options.cropRect);
     bestBlob = await canvasToBlob(fallbackCanvas, mime, 0.10);
   }
 
@@ -233,7 +294,7 @@ export async function compressImage(
     blob: bestBlob,
     originalSize,
     compressedSize: bestBlob.size,
-    targetKb: options.targetKb,
+    targetKb: options.targetKb || 0,
     width: bestWidth,
     height: bestHeight,
     quality: bestQuality,

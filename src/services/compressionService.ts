@@ -1,5 +1,5 @@
-import { compressImage, CompressResult, ImageCompressOptions } from '../utils/imageCompressor';
-import { compressPdf, PdfCompressResult, PdfCompressOptions } from '../utils/pdfCompressor';
+import { compressImage, ImageCropRect } from '../utils/imageCompressor';
+import { compressPdf } from '../utils/pdfCompressor';
 import { storageService } from './storage';
 
 export type FileCompressionType = 'image' | 'pdf';
@@ -14,21 +14,22 @@ export interface UnifiedCompressResult {
   type: FileCompressionType;
   fileName: string;
   previewUrl: string;
+  width?: number;
+  height?: number;
+  dpi?: number;
+  unit?: string;
+  format?: string;
 }
 
-let workerInstance: Worker | null = null;
-function getWorker(): Worker | null {
-  if (typeof window === 'undefined' || typeof Worker === 'undefined') return null;
-  try {
-    if (!workerInstance) {
-      workerInstance = new Worker(new URL('../workers/compress.worker.ts', import.meta.url), {
-        type: 'module',
-      });
-    }
-    return workerInstance;
-  } catch {
-    return null;
-  }
+export interface ProcessFileOptions {
+  targetWidth?: number;
+  targetHeight?: number;
+  maintainAspectRatio?: boolean;
+  mimeType?: 'image/jpeg' | 'image/png' | 'image/webp';
+  cropRect?: ImageCropRect;
+  dpi?: number;
+  unit?: 'px' | 'cm' | 'mm';
+  onProgress?: (progress: { current: number; total: number; percent: number }) => void;
 }
 
 export const compressionService = {
@@ -38,11 +39,7 @@ export const compressionService = {
   async processFile(
     file: File,
     targetKb: number,
-    options: {
-      targetWidth?: number;
-      targetHeight?: number;
-      onProgress?: (progress: { current: number; total: number; percent: number }) => void;
-    } = {}
+    options: ProcessFileOptions = {}
   ): Promise<UnifiedCompressResult> {
     const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
     const isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp|bmp)$/i.test(file.name);
@@ -52,15 +49,26 @@ export const compressionService = {
     }
 
     if (isImage) {
-      // Compress image
+      const mime = options.mimeType || 'image/jpeg';
       const result = await compressImage(file, {
         targetKb,
         targetWidth: options.targetWidth,
         targetHeight: options.targetHeight,
-        maintainAspectRatio: !options.targetWidth || !options.targetHeight,
+        maintainAspectRatio: options.maintainAspectRatio ?? (!options.targetWidth || !options.targetHeight),
+        mimeType: mime,
+        cropRect: options.cropRect,
       });
 
       const previewUrl = URL.createObjectURL(result.blob);
+
+      // Determine proper file extension
+      let ext = 'jpg';
+      if (mime === 'image/png') ext = 'png';
+      else if (mime === 'image/webp') ext = 'webp';
+
+      const suffix = targetKb > 0 ? `${targetKb}kb` : 'custom';
+      const baseName = file.name.replace(/\.[^/.]+$/, '');
+      const outFileName = `${baseName}_kbcut_${suffix}.${ext}`;
 
       // Save to history in background
       storageService.addHistory({
@@ -79,8 +87,13 @@ export const compressionService = {
         reachedTarget: result.reachedTarget,
         suggestedKb: result.suggestedKb,
         type: 'image',
-        fileName: file.name.replace(/\.[^/.]+$/, '') + `_kbcut_${targetKb}kb.jpg`,
+        fileName: outFileName,
         previewUrl,
+        width: result.width,
+        height: result.height,
+        dpi: options.dpi,
+        unit: options.unit,
+        format: ext.toUpperCase(),
       };
     } else {
       // Compress PDF
@@ -90,6 +103,8 @@ export const compressionService = {
       });
 
       const previewUrl = URL.createObjectURL(result.blob);
+      const baseName = file.name.replace(/\.[^/.]+$/, '');
+      const outFileName = `${baseName}_kbcut_${targetKb}kb.pdf`;
 
       // Save to history in background
       storageService.addHistory({
@@ -108,7 +123,7 @@ export const compressionService = {
         reachedTarget: result.reachedTarget,
         suggestedKb: result.suggestedKb,
         type: 'pdf',
-        fileName: file.name.replace(/\.[^/.]+$/, '') + `_kbcut_${targetKb}kb.pdf`,
+        fileName: outFileName,
         previewUrl,
       };
     }

@@ -57,7 +57,15 @@ export const HomePage: React.FC<HomePageProps> = ({
 
   const handleCompress = async (
     targetKb: number,
-    options?: { targetWidth?: number; targetHeight?: number }
+    options?: {
+      targetWidth?: number;
+      targetHeight?: number;
+      maintainAspectRatio?: boolean;
+      mimeType?: 'image/jpeg' | 'image/png' | 'image/webp';
+      cropRect?: any;
+      dpi?: number;
+      unit?: 'px' | 'cm' | 'mm';
+    }
   ) => {
     if (!selectedFile) return;
 
@@ -68,6 +76,11 @@ export const HomePage: React.FC<HomePageProps> = ({
       const compressResult = await compressionService.processFile(selectedFile, targetKb, {
         targetWidth: options?.targetWidth,
         targetHeight: options?.targetHeight,
+        maintainAspectRatio: options?.maintainAspectRatio,
+        mimeType: options?.mimeType,
+        cropRect: options?.cropRect,
+        dpi: options?.dpi,
+        unit: options?.unit,
         onProgress: (p) => setCompressProgress(p),
       });
 
