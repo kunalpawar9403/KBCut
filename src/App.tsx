@@ -82,7 +82,7 @@ export function App() {
         />
 
         {/* Main Content Area */}
-        <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-24 md:pb-16">
+        <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-28 md:pb-16">
           {matchedSlug ? (
             <SeoLandingPage slug={matchedSlug} />
           ) : (

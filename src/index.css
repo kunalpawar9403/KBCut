@@ -60,17 +60,17 @@
   opacity: 0.92;
 }
 
-/* Glassmorphism utility with multi-layer blur */
+/* Glassmorphism utility — solid header, no content bleed-through on scroll */
 .glass {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .dark .glass {
-  background: rgba(9, 13, 22, 0.82);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(9, 13, 22, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 /* Ambient gradient background mesh */
