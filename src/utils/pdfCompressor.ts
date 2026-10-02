@@ -1,5 +1,7 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { PDFDocument } from 'pdf-lib';
+import { optimizePdfWithQpdf } from '../services/qpdfService';
+import { mozjpegEncode } from '../services/wasmCodecs';
 
 // Configure PDF.js worker
 if (typeof window !== 'undefined') {
@@ -56,7 +58,33 @@ export async function compressPdf(
     throw new PdfError('CORRUPT_FILE', 'Failed to read file buffer');
   }
 
-  // Phase 1: Try Lossless Vector Compression first
+  // Phase 0: QPDF WebAssembly Optimization (preserves 100% vector fonts, streams, and linearizes)
+  try {
+    const qpdfBytes = await optimizePdfWithQpdf(arrayBuffer);
+    if (qpdfBytes && (isNoLimit || qpdfBytes.length <= targetBytes)) {
+      const qpdfBlob = new Blob([qpdfBytes as unknown as BlobPart], { type: 'application/pdf' });
+      let pages = 1;
+      try {
+        const d = await PDFDocument.load(qpdfBytes, { ignoreEncryption: true });
+        pages = d.getPageCount();
+      } catch {
+        // Safe ignore
+      }
+
+      return {
+        blob: qpdfBlob,
+        originalSize,
+        compressedSize: qpdfBlob.size,
+        targetKb: options.targetKb || 0,
+        totalPages: pages,
+        reachedTarget: true,
+      };
+    }
+  } catch {
+    // Continue if QPDF wasm is not available or exceeds target
+  }
+
+  // Phase 1: Try Lossless Vector Compression
   try {
     const directDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
     directDoc.setTitle('');
@@ -177,14 +205,20 @@ export async function compressPdf(
         // Safe fallback
       }
 
-      // Binary search quality from 0.88 down to 0.15
+      // Binary search quality from 0.88 down to 0.15 using MozJPEG WASM
       let high = 0.88;
       let low = 0.15;
       let stepCandidate: Blob | null = null;
 
       for (let iter = 0; iter < 6; iter++) {
         const mid = Number(((low + high) / 2).toFixed(2));
-        const blob: Blob = await new Promise((res) => canvas.toBlob((b) => res(b!), 'image/jpeg', mid));
+        let blob: Blob;
+        try {
+          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          blob = await mozjpegEncode(imgData, mid * 100);
+        } catch {
+          blob = await new Promise((res) => canvas.toBlob((b) => res(b!), 'image/jpeg', mid));
+        }
 
         if (blob.size <= targetBytesPerPage) {
           stepCandidate = blob;
@@ -201,7 +235,14 @@ export async function compressPdf(
       }
 
       // Try lowest acceptable quality on this canvas
-      const lowestBlob: Blob = await new Promise((res) => canvas.toBlob((b) => res(b!), 'image/jpeg', 0.15));
+      let lowestBlob: Blob;
+      try {
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        lowestBlob = await mozjpegEncode(imgData, 15);
+      } catch {
+        lowestBlob = await new Promise((res) => canvas.toBlob((b) => res(b!), 'image/jpeg', 0.15));
+      }
+
       if (lowestBlob.size <= targetBytesPerPage) {
         pageBlob = lowestBlob;
         break;
@@ -214,7 +255,12 @@ export async function compressPdf(
     }
 
     if (!pageBlob) {
-      pageBlob = await new Promise((res) => canvas.toBlob((b) => res(b!), 'image/jpeg', 0.15));
+      try {
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        pageBlob = await mozjpegEncode(imgData, 15);
+      } catch {
+        pageBlob = await new Promise((res) => canvas.toBlob((b) => res(b!), 'image/jpeg', 0.15));
+      }
     }
 
     const jpgBytes = await (pageBlob as Blob).arrayBuffer();

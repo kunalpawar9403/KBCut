@@ -1,3 +1,5 @@
+import { mozjpegEncode, wasmPngEncode, oxipngOptimize } from '../services/wasmCodecs';
+
 /**
  * Image Compression Engine for KBCut
  * 
@@ -59,13 +61,42 @@ export async function loadImageElement(source: Blob | File): Promise<HTMLImageEl
 }
 
 /**
- * Convert Canvas to Blob with specified quality
+ * Convert Canvas to Blob with specified quality using MozJPEG / OxiPNG WASM with canvas fallback
  */
-export function canvasToBlob(
+export async function canvasToBlob(
   canvas: HTMLCanvasElement | OffscreenCanvas,
   mimeType: string = 'image/jpeg',
   quality: number = 0.8
 ): Promise<Blob> {
+  // If MozJPEG requested (JPEG)
+  if (mimeType === 'image/jpeg' && 'getContext' in canvas) {
+    try {
+      const ctx = (canvas as HTMLCanvasElement).getContext('2d');
+      if (ctx) {
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        return await mozjpegEncode(imgData, quality * 100);
+      }
+    } catch {
+      // Fallback to native canvas
+    }
+  }
+
+  // If PNG requested
+  if (mimeType === 'image/png' && 'getContext' in canvas) {
+    try {
+      const ctx = (canvas as HTMLCanvasElement).getContext('2d');
+      if (ctx) {
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const rawPngBlob = await wasmPngEncode(imgData);
+        const pngBuf = await rawPngBlob.arrayBuffer();
+        return await oxipngOptimize(pngBuf, 2);
+      }
+    } catch {
+      // Fallback to native canvas
+    }
+  }
+
+  // Native Canvas fallback
   if ('convertToBlob' in canvas) {
     return (canvas as OffscreenCanvas).convertToBlob({ type: mimeType, quality });
   }
