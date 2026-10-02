@@ -302,6 +302,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateTab, onNavigateSeo }) 
               Settings
             </button>
             <button
+              onClick={() => handleSeoClick('privacy')}
+              className="hover:text-brand-500 transition-colors py-1"
+            >
+              Privacy Policy
+            </button>
+            <button
               onClick={scrollToTop}
               aria-label="Scroll to top"
               className="inline-flex items-center space-x-1 px-2 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-brand-50 dark:hover:bg-brand-950/60 text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 text-[11px] font-bold transition-all border border-slate-200 dark:border-slate-700 shadow-2xs"

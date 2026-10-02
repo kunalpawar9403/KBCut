@@ -9,6 +9,7 @@ import { ToolsPage } from './pages/ToolsPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { SeoLandingPage } from './pages/SeoLandingPage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<NavTab>('home');
@@ -83,7 +84,9 @@ export function App() {
 
         {/* Main Content Area */}
         <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-16 md:pb-16">
-          {matchedSlug ? (
+          {currentPath === '/privacy' ? (
+            <PrivacyPolicyPage onBack={handleNavigateHome} />
+          ) : matchedSlug ? (
             <SeoLandingPage slug={matchedSlug} />
           ) : (
             <>
