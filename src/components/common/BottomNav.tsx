@@ -22,9 +22,9 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onChangeTab }) 
   return (
     <nav
       aria-label="Mobile bottom navigation"
-      className="fixed bottom-0 left-0 right-0 z-40 md:hidden px-3 pb-0"
+      className="fixed bottom-0 left-0 right-0 z-40 md:hidden"
     >
-      <div className="glass rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-[0_4px_24px_rgba(0,0,0,0.10)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.35)] flex items-stretch h-[60px] overflow-hidden">
+      <div className="glass border-t border-slate-200/80 dark:border-slate-700/80 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.30)] flex items-stretch h-[60px] overflow-hidden">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
