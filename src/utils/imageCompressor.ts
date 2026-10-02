@@ -279,15 +279,22 @@ export async function compressImage(
       }
     }
 
+    const hasExplicitDimensions = Boolean(options.targetWidth && options.targetHeight);
+
     if (stepBestBlob && stepBestBlob.size <= targetBytes) {
       bestBlob = stepBestBlob;
       bestQuality = stepBestQuality;
       bestWidth = currentWidth;
       bestHeight = currentHeight;
 
-      // If quality is good (>= 0.60) or resolution is already compact (<= 600px),
-      // we have reached the optimal balance of resolution and sharp quality!
-      if (stepBestQuality >= 0.60 || currentWidth <= 600 || currentHeight <= 600) {
+      // If dimensions were explicitly specified by the user/preset, stop immediately
+      // to preserve the user's exact requested resolution!
+      if (hasExplicitDimensions) {
+        break;
+      }
+
+      // For auto-sized images, stop once quality is solid (>= 0.42) or compact
+      if (stepBestQuality >= 0.42 || currentWidth <= 800 || currentHeight <= 800) {
         break;
       }
     }

@@ -56,10 +56,10 @@ export const CompressSettings: React.FC<CompressSettingsProps> = ({
 
   // Mode: 'preset' (Exam Presets) vs 'custom' (Custom Resize)
   const [activeMode, setActiveMode] = useState<'preset' | 'custom'>(
-    initialPreset ? 'preset' : 'preset'
+    initialPreset ? 'preset' : 'custom'
   );
   const [selectedPreset, setSelectedPreset] = useState<ExamPreset | null>(
-    initialPreset || EXAM_PRESETS[0]
+    initialPreset || null
   );
 
   // Dimension Unit: 'px' | 'cm' | 'mm'
@@ -73,8 +73,8 @@ export const CompressSettings: React.FC<CompressSettingsProps> = ({
   const [customDpiInput, setCustomDpiInput] = useState<string>('300');
 
   // Editable Width & Height inputs
-  const initialW = initialPreset?.width ? String(initialPreset.width) : '200';
-  const initialH = initialPreset?.height ? String(initialPreset.height) : '230';
+  const initialW = initialPreset?.width ? String(initialPreset.width) : '';
+  const initialH = initialPreset?.height ? String(initialPreset.height) : '';
   const [widthInput, setWidthInput] = useState<string>(initialW);
   const [heightInput, setHeightInput] = useState<string>(initialH);
 
@@ -83,7 +83,7 @@ export const CompressSettings: React.FC<CompressSettingsProps> = ({
   const [aspectRatio, setAspectRatio] = useState<number>(
     initialPreset?.width && initialPreset?.height
       ? initialPreset.width / initialPreset.height
-      : 200 / 230
+      : 1
   );
 
   // Target File Size section: 'max' vs 'nolimit'
@@ -117,8 +117,8 @@ export const CompressSettings: React.FC<CompressSettingsProps> = ({
       const img = new Image();
       img.onload = () => {
         setOriginalDimensions({ width: img.naturalWidth, height: img.naturalHeight });
-        // If no preset was selected, populate with original natural dimensions
-        if (!initialPreset && !selectedPreset) {
+        // If no preset was explicitly passed, populate with original natural dimensions
+        if (!initialPreset) {
           setWidthInput(String(img.naturalWidth));
           setHeightInput(String(img.naturalHeight));
           setAspectRatio(img.naturalWidth / img.naturalHeight);
@@ -128,7 +128,7 @@ export const CompressSettings: React.FC<CompressSettingsProps> = ({
 
       return () => URL.revokeObjectURL(url);
     }
-  }, [file, isPdf, initialPreset, selectedPreset]);
+  }, [file, isPdf, initialPreset]);
 
   // Derived resolved pixel dimensions
   const numW = parseFloat(widthInput) || 0;

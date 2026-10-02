@@ -12,7 +12,15 @@ export async function mozjpegEncode(
 ): Promise<Blob> {
   try {
     const q = Math.max(1, Math.min(100, Math.round(quality)));
-    const buffer = await encodeJpeg(imageData, { quality: q });
+    const buffer = await encodeJpeg(imageData, {
+      quality: q,
+      baseline: false,
+      progressive: true,
+      optimize_coding: true,
+      trellis_multipass: true,
+      trellis_opt_zero: true,
+      trellis_opt_table: true,
+    });
     return new Blob([buffer], { type: 'image/jpeg' });
   } catch (err) {
     console.warn('MozJPEG WASM encode failed, falling back to canvas:', err);
