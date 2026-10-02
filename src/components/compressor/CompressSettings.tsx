@@ -117,8 +117,8 @@ export const CompressSettings: React.FC<CompressSettingsProps> = ({
       const img = new Image();
       img.onload = () => {
         setOriginalDimensions({ width: img.naturalWidth, height: img.naturalHeight });
-        // If no preset was pre-selected, populate with original natural dimensions
-        if (!initialPreset) {
+        // If no preset was selected, populate with original natural dimensions
+        if (!initialPreset && !selectedPreset) {
           setWidthInput(String(img.naturalWidth));
           setHeightInput(String(img.naturalHeight));
           setAspectRatio(img.naturalWidth / img.naturalHeight);
@@ -128,7 +128,7 @@ export const CompressSettings: React.FC<CompressSettingsProps> = ({
 
       return () => URL.revokeObjectURL(url);
     }
-  }, [file, isPdf, initialPreset]);
+  }, [file, isPdf, initialPreset, selectedPreset]);
 
   // Derived resolved pixel dimensions
   const numW = parseFloat(widthInput) || 0;

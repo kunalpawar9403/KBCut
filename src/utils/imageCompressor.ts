@@ -219,32 +219,31 @@ export async function compressImage(
   let bestWidth = currentWidth;
   let bestHeight = currentHeight;
 
-  const hasExplicitDimensions = Boolean(options.targetWidth && options.targetHeight);
-  const MAX_DOWNSCALE_STEPS = hasExplicitDimensions ? 1 : 10;
-  const MIN_DIMENSION = 200;
+  const MAX_DOWNSCALE_STEPS = 14;
+  const MIN_DIMENSION = 50;
 
   for (let step = 0; step < MAX_DOWNSCALE_STEPS; step++) {
     const canvas = drawToCanvas(img, currentWidth, currentHeight, options.cropRect);
 
     let high = 0.96;
-    let low = 0.35; // Clarity floor: prevent extreme compression blur
+    let low = 0.12;
     let stepBestBlob: Blob | null = null;
     let stepBestQuality = low;
 
-    // Binary search quality (up to 7 iterations)
-    for (let iter = 0; iter < 7; iter++) {
+    // Binary search quality (8 iterations for precision)
+    for (let iter = 0; iter < 8; iter++) {
       const mid = Number(((low + high) / 2).toFixed(3));
       const blob = await canvasToBlob(canvas, mime, mid);
 
       if (blob.size <= targetBytes) {
         stepBestBlob = blob;
         stepBestQuality = mid;
-        low = mid;
+        low = mid; // Try higher quality
       } else {
-        high = mid;
+        high = mid; // Exceeds target, lower quality
       }
 
-      if (high - low < 0.035) {
+      if (high - low < 0.02) {
         break;
       }
     }
@@ -254,36 +253,20 @@ export async function compressImage(
       bestQuality = stepBestQuality;
       bestWidth = currentWidth;
       bestHeight = currentHeight;
-      break;
+
+      // If quality is good (>= 0.60) or resolution is already compact (<= 600px),
+      // we have reached the optimal balance of resolution and sharp quality!
+      if (stepBestQuality >= 0.60 || currentWidth <= 600 || currentHeight <= 600) {
+        break;
+      }
     }
 
-    // Try lowest acceptable quality (0.30) on this resolution
-    const lowestBlob = await canvasToBlob(canvas, mime, 0.30);
-    if (lowestBlob.size <= targetBytes) {
-      bestBlob = lowestBlob;
-      bestQuality = 0.30;
-      bestWidth = currentWidth;
-      bestHeight = currentHeight;
+    // If still over target, downscale resolution smoothly
+    if (currentWidth * 0.88 < MIN_DIMENSION || currentHeight * 0.88 < MIN_DIMENSION) {
       break;
     }
-
-    if (!bestBlob || lowestBlob.size < bestBlob.size) {
-      bestBlob = lowestBlob;
-      bestQuality = 0.30;
-      bestWidth = currentWidth;
-      bestHeight = currentHeight;
-    }
-
-    // If explicit target dimensions were specified by user, do NOT downscale dimensions
-    if (hasExplicitDimensions) {
-      break;
-    }
-
-    if (currentWidth * 0.9 < MIN_DIMENSION || currentHeight * 0.9 < MIN_DIMENSION) {
-      break;
-    }
-    currentWidth = Math.round(currentWidth * 0.9);
-    currentHeight = Math.round(currentHeight * 0.9);
+    currentWidth = Math.round(currentWidth * 0.88);
+    currentHeight = Math.round(currentHeight * 0.88);
   }
 
   if (!bestBlob) {
