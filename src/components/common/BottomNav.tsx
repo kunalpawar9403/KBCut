@@ -22,8 +22,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onChangeTab }) 
   return (
     <nav
       aria-label="Mobile bottom navigation"
-      className="fixed bottom-0 left-0 right-0 z-40 md:hidden px-3"
-      style={{ paddingBottom: 'max(calc(env(safe-area-inset-bottom) + 12px), 20px)' }}
+      className="fixed bottom-0 left-0 right-0 z-40 md:hidden px-3 pb-2"
     >
       <div className="glass rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-[0_4px_24px_rgba(0,0,0,0.10)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.35)] flex items-stretch h-[60px] overflow-hidden">
         {tabs.map((tab) => {
