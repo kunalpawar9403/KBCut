@@ -26,10 +26,20 @@ jobs:
           for d in dist build out; do [ -f "$d/index.html" ] && DIR=$d && break; done
           nohup npx --yes serve -s "$DIR" -l 4173 > /tmp/serve.log 2>&1 &
           npx --yes wait-on http://127.0.0.1:4173 --timeout 60000
-      - name: Run Playwright tests
+      - name: Run Playwright tests (e2e folder only, never unit tests)
         env:
           BASE_URL: http://127.0.0.1:4173
-        run: npx playwright test --reporter=list,html
+        run: |
+          cat > qa.playwright.config.mjs <<'EOF2'
+          export default {
+            testDir: process.env.QA_TEST_DIR || 'tests/e2e',
+            testMatch: /.*\.(spec|test)\.[cm]?[jt]sx?$/,
+            timeout: 30000,
+            reporter: [['list'], ['html', { open: 'never' }]],
+            use: { baseURL: process.env.BASE_URL },
+          };
+          EOF2
+          npx playwright test -c qa.playwright.config.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
