@@ -36,7 +36,12 @@ jobs:
             testMatch: /.*\.(spec|test)\.[cm]?[jt]sx?$/,
             timeout: 30000,
             reporter: [['list'], ['html', { open: 'never' }]],
-            use: { baseURL: process.env.BASE_URL },
+            use: {
+              baseURL: process.env.BASE_URL,
+              trace: 'on',
+              screenshot: 'on',
+              video: 'on',
+            },
           };
           EOF2
           npx playwright test -c qa.playwright.config.mjs
@@ -44,5 +49,7 @@ jobs:
         if: always()
         with:
           name: playwright-report
-          path: playwright-report/
+          path: |
+            playwright-report/
+            test-results/
           if-no-files-found: ignore
