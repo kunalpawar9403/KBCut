@@ -1,0 +1,73 @@
+name: Playwright QA Automated Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git branch or ref to execute tests on'
+        required: false
+        default: 'main'
+      correlation_id:
+        description: 'Execution tracking correlation ID'
+        required: false
+        default: 'manual_run'
+      environment:
+        description: 'Target test environment'
+        required: false
+        default: 'staging'
+      callback_url:
+        description: 'Optional callback URL to notify n8n upon completion'
+        required: false
+        default: ''
+
+jobs:
+  test:
+    name: Run Playwright Tests
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          elif [ -f package.json ]; then
+            npm install
+          else
+            echo "Initializing minimal Playwright project..."
+            npm init -y
+            npm install -D @playwright/test typescript @types/node
+          fi
+
+      - name: Install Playwright Browsers
+        run: |
+          npx playwright install --with-deps chromium || npx playwright install chromium
+
+      - name: Run Playwright Tests
+        id: run_tests
+        run: |
+          mkdir -p playwright-report test-results
+          npx playwright test --reporter=json,html > test-output.log 2>&1 || true
+        env:
+          CI: true
+          CORRELATION_ID: ${{ github.event.inputs.correlation_id }}
+
+      - name: Upload Test Results Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ github.event.inputs.correlation_id || github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+            test-output.log
+          retention-days: 7
