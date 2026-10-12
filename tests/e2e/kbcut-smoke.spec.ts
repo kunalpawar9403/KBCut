@@ -33,7 +33,9 @@ test.describe('KBCut Core Application Suite', () => {
     page,
   }) => {
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
-    const dropZone = page.locator('input[type="file"], [role="presentation"], label:has-text("Choose")');
+    const dropZone = page.locator(
+      'input[type="file"], [role="presentation"], label:has-text("Choose")'
+    );
     await expect(dropZone.first()).toBeVisible();
   });
 
@@ -52,8 +54,8 @@ test.describe('KBCut Core Application Suite', () => {
 
     await themeBtn.click();
 
-    // Wait for the class attribute to change after the click
-    await expect(html).toHaveAttribute('class', (value) => value !== initialClass);
+    const newClass = await html.getAttribute('class');
+    expect(newClass).not.toBe(initialClass);
   });
 
   test('TC005 - Navigation to Privacy Policy route renders content', async ({
@@ -92,14 +94,10 @@ test.describe('KBCut Core Application Suite', () => {
     page,
   }) => {
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
-    const toolsTab = page.locator('button:has-text("Tools"), a:has-text("Tools")').first();
-    if (await toolsTab.count() > 0) {
-      await toolsTab.click();
-      // After clicking Tools, a main content area with tool options should appear
-      await expect(page.locator('main, #root')).toBeVisible();
-    } else {
-      test.fail(true, 'Tools tab not found');
-    }
+    const toolsTab = page.locator('button:has-text("Tools"), a:has-text("Tools")');
+    await expect(toolsTab).toHaveCount(1);
+    await toolsTab.first().click();
+    await expect(page.locator('main, #root')).toBeVisible();
   });
 
   test('TC009 - No uncaught runtime exceptions during initial load', async ({
