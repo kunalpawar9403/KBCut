@@ -1,4 +1,3 @@
-```ts
 import { test, expect } from '@playwright/test';
 
 const BASE = process.env.BASE_URL || 'http://localhost:4173';
@@ -198,7 +197,9 @@ test.describe('KBCut App E2E Suite', () => {
   // -------------------------------------------------------------------------
   // 9️⃣ Tool specific UI – Merge PDF tool
   // -------------------------------------------------------------------------
-  test('TC014 - Merge PDF tool opens its modal', async ({ page }) => {
+  test('TC014 - Merge PDF tool opens its modal', async ({
+    page,
+  }) => {
     await page.goto(BASE);
     await page
       .getByRole('button', { name: /merge pdf/i })
@@ -317,4 +318,12 @@ test.describe('KBCut App E2E Suite', () => {
     await expect(footer).toBeVisible();
 
     const privacyLink = footer.getByRole('link', { name: /privacy/i });
-    await
+    await privacyLink.click();
+
+    // Verify navigation to the privacy page
+    await expect(page).toHaveURL(`${BASE}/privacy`);
+    await expect(
+      page.getByRole('heading', { name: /privacy policy/i })
+    ).toBeVisible();
+  });
+});
