@@ -48,7 +48,10 @@ test.describe('KBCut App E2E Suite', () => {
     page,
   }) => {
     await page.goto(BASE);
-    const nav = page.getByRole('navigation');
+    // Scope to the mobile bottom navigation (unique aria-label)
+    const nav = page.getByRole('navigation', {
+      name: /mobile bottom navigation/i,
+    });
     await expect(nav).toBeVisible();
 
     const tabs = ['home', 'tools', 'history', 'settings'];
@@ -226,7 +229,10 @@ test.describe('KBCut App E2E Suite', () => {
   }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto(BASE);
-    const nav = page.getByRole('navigation');
+    // Scope to the mobile bottom navigation (unique aria-label)
+    const nav = page.getByRole('navigation', {
+      name: /mobile bottom navigation/i,
+    });
     await expect(nav).toBeVisible();
 
     // ensure a tab is still clickable
